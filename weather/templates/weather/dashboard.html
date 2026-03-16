@@ -1,0 +1,100 @@
+{% extends "weather/base.html" %}
+
+{% block title %}WeatherDash — Global World Zones Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4 align-items-center">
+  <div class="col">
+    <h1 class="h3 mb-0">
+      <i class="bi bi-globe2 me-2" style="color: var(--wd-primary);"></i>
+      Global World Zones
+    </h1>
+    <p class="text-muted small mb-0">
+      Real-time weather overview across major world zones &bull;
+      <span id="live-time">{{ now|date:"D, d M Y H:i" }} UTC</span>
+    </p>
+  </div>
+</div>
+
+{% if not zones %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    No world zones found. Run <code>python manage.py seed_zones</code> to populate the database.
+  </div>
+{% endif %}
+
+{% regroup zones by get_continent_display as continent_groups %}
+{% for continent_group in continent_groups %}
+  <h5 class="text-muted text-uppercase mt-4 mb-3" style="letter-spacing:.1em; font-size:.8rem;">
+    <i class="bi bi-pin-map me-1"></i>{{ continent_group.grouper }}
+  </h5>
+  <div class="row g-3">
+    {% for zone in continent_group.list %}
+    <div class="col-12 col-sm-6 col-lg-4">
+      <a href="{% url 'weather:zone_detail' zone.slug %}" class="text-decoration-none">
+        <div class="card h-100 p-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0 text-white">{{ zone.name }}</h6>
+            <span class="badge bg-primary badge-continent">
+              UTC{% if zone.utc_offset >= 0 %}+{% endif %}{{ zone.utc_offset|floatformat:"-0" }}
+            </span>
+          </div>
+          <p class="text-muted small mb-3" style="min-height: 2.5rem;">
+            {{ zone.description|truncatechars:80 }}
+          </p>
+          {% with featured=zone.cities.all %}
+          {% if featured %}
+          <div class="row g-2">
+            {% for city in featured %}
+              {% if city.is_featured %}
+              <div class="col-6">
+                <div class="p-2 rounded" style="background: rgba(255,255,255,.05);">
+                  <div class="small text-muted">{{ city.name }}</div>
+                  {% if city.weather_snapshot %}
+                    <div class="d-flex align-items-center gap-1">
+                      <img src="{{ city.weather_snapshot.icon_url }}"
+                           alt="{{ city.weather_snapshot.description }}"
+                           width="30" height="30"
+                           onerror="this.style.display='none'">
+                      <span class="fw-bold">{{ city.weather_snapshot.temperature_celsius|floatformat:0 }}°C</span>
+                    </div>
+                    <div class="text-muted" style="font-size:.7rem;">{{ city.weather_snapshot.description }}</div>
+                  {% else %}
+                    <div class="text-muted small"><i class="bi bi-dash"></i> No data</div>
+                  {% endif %}
+                </div>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endwith %}
+          <div class="mt-2 text-end">
+            <span class="text-muted small">
+              <i class="bi bi-buildings me-1"></i>{{ zone.cities.count }} cit{{ zone.cities.count|pluralize:"y,ies" }}
+              &rarr;
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+{% endfor %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Update the displayed time every minute
+  function updateTime() {
+    const el = document.getElementById('live-time');
+    if (el) {
+      const now = new Date();
+      const options = { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', timeZone: 'UTC' };
+      el.textContent = now.toLocaleString('en-GB', options) + ' UTC';
+    }
+  }
+  setInterval(updateTime, 60000);
+</script>
+{% endblock %}
