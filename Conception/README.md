@@ -37,8 +37,8 @@ Il contient :
 Ce diagramme décrit l’architecture logique du système.
 
 ### 📷 Diagramme :
+<img width="578" height="401" alt="image" src="https://github.com/user-attachments/assets/fff12d0e-282d-48cf-b0f7-8a78bee0f102" />
 
-<img width="560" height="417" alt="image" src="https://github.com/user-attachments/assets/735141eb-8830-403d-b365-9f662172131e" />
 
 
 ---
@@ -55,8 +55,8 @@ Il montre :
 Ce diagramme permet de comprendre le fonctionnement dynamique du système.
 
 
+<img width="1211" height="1827" alt="cas d&#39;utulisation" src="https://github.com/user-attachments/assets/7bfd016a-534b-4c76-9d27-cf1965b67e09" />
 
-<img width="975" height="718" alt="image" src="https://github.com/user-attachments/assets/66bf146c-27ea-4ae6-afc0-b4cd9a4e1362" />
 
 
 ---
