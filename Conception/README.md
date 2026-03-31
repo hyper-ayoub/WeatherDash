@@ -37,7 +37,8 @@ Il contient :
 Ce diagramme décrit l’architecture logique du système.
 
 ### 📷 Diagramme :
-<img width="578" height="401" alt="image" src="https://github.com/user-attachments/assets/fff12d0e-282d-48cf-b0f7-8a78bee0f102" />
+<img width="563" height="514" alt="image" src="https://github.com/user-attachments/assets/28c4bd2d-0071-4a3a-914c-cc75553ecf35" />
+
 
 
 
