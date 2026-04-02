@@ -1,0 +1,15 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=qA3w9Yp2vY7r&format=png&color=000000" type="image/x-icon">
+    
+</head>
+<body>
+    <h1>Welcome to the Home Page! {{ request.user.first_name}} {{ request.user.last_name}}</h1>
+    <a href="{% url 'logout' %}">Logout</a>
+    <p>This is a simple Django Home page template.</p>
+</body>
+</html>
