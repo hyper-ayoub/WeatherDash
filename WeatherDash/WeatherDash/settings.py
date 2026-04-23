@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Home',
     'authentification',
-    'landing_page',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +87,7 @@ DATABASES = {
 'ENGINE': 'django.db.backends.mysql',
 'NAME': 'weatherdash',
 'USER':'root',
-'PASSWORD':'',
+'PASSWORD':'root',
 'HOST':'localhost',
 'PORT':'3306',
 }
@@ -126,7 +125,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-LOGIN_URL = '/authentification/signin/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 

@@ -1,53 +1,79 @@
-from django.shortcuts import render, redirect
-from django.views import View
+import json
+
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.contrib import messages
-
-# signup
-''' for signup '''
-class SignupView(View):
-    def get(self,request):
-        return render(request, 'authentification/signup.html' , {'form': UserCreationForm()})
-
-    def post(self, request):
-            form = UserCreationForm(request.POST)
-            if form.is_valid():
-                user = form.save()
-                user.first_name = request.POST.get('first_name')
-                user.last_name = request.POST.get('last_name')
-                user.email = request.POST.get('email')
-                user.save()
-                messages.success(request,'Account created successfully!')
-                return render(request, 'authentification/signup.html', {'form': UserCreationForm()})
-                #return redirect('signin')
-            messages.error(request,'Registation Failed')
-            return render(request, 'authentification/signup.html', {'form': form})
-        
-# signin
-''' for sigin '''
-class SigninView(View):
-    def get(self,request):
-        return render(request, 'authentification/signin.html' , {'form': AuthenticationForm()})
-    def post(self, request):
-        form = AuthenticationForm(request, data=request.POST)
-        s, p = request.POST.get('username'), request.POST.get('password')
-        try:
-            s = User.objects.get(email=s).username
-        except:
-            pass
-        user = authenticate(request, username=s, password=p)
-        if user is not None:
-            login(request, user)
-            messages.success(request,'Login successful!!')
-            return render(request, 'authentification/signin.html', {'form': AuthenticationForm()}) 
-            #return redirect('Home')
-        messages.error(request, 'Invalid credentials!')   
-        return render(request, 'authentification/signin.html' , {'form': form, 'error':'Invalid credentials'})
+from django.views.decorators.csrf import csrf_exempt
 
 
-class LogoutView(View):
-    def get(self, request):
-        logout(request)
-        return redirect('landing_page')
+def _user_payload(user):
+    return {
+        'id': user.id,
+        'username': user.username,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'email': user.email,
+    }
+
+
+def _load_payload(request):
+    if request.content_type == 'application/json':
+        return json.loads(request.body or '{}')
+    return request.POST
+
+
+@csrf_exempt
+def api_signup(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'detail': 'Method not allowed'}, status=405)
+
+    payload = _load_payload(request)
+    form = UserCreationForm(payload)
+    if not form.is_valid():
+        return JsonResponse({'ok': False, 'errors': form.errors}, status=400)
+
+    user = form.save()
+    user.first_name = payload.get('first_name', '')
+    user.last_name = payload.get('last_name', '')
+    user.email = payload.get('email', '')
+    user.save()
+    return JsonResponse({'ok': True, 'user': _user_payload(user)}, status=201)
+
+
+@csrf_exempt
+def api_signin(request):
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'detail': 'Method not allowed'}, status=405)
+
+    payload = _load_payload(request)
+    username = payload.get('username', '')
+    password = payload.get('password', '')
+
+    try:
+        username = User.objects.get(email=username).username
+    except User.DoesNotExist:
+        pass
+
+    user = authenticate(request, username=username, password=password)
+    if user is None:
+        return JsonResponse({'ok': False, 'detail': 'Invalid credentials'}, status=400)
+
+    login(request, user)
+    return JsonResponse({'ok': True, 'user': _user_payload(user)})
+
+
+@csrf_exempt
+def api_logout(request):
+    if request.method not in {'POST', 'GET'}:
+        return JsonResponse({'ok': False, 'detail': 'Method not allowed'}, status=405)
+
+    logout(request)
+    return JsonResponse({'ok': True})
+
+
+def api_me(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'detail': 'Unauthenticated'}, status=401)
+
+    return JsonResponse({'ok': True, 'user': _user_payload(request.user)})
