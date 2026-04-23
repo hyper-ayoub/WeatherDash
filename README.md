@@ -1,5 +1,9 @@
  # WeatherDash Django-based weather application with a focus on global world zones, by hamza
 
+The browser frontend now lives in [client/](client), built with React and Vite. The Django project remains the backend and exposes JSON endpoints under `/backend/api/`.
+
+Run the backend in `WeatherDash/` and the frontend in `client/`.
+
 
 <img width="1912" height="1788" alt="screencapture-127-0-0-1-8000-2026-03-29-23_19_58" src="https://github.com/user-attachments/assets/b1f57a67-5b9e-4ed2-ba49-378162788cbb" />
 
