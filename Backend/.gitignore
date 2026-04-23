@@ -1,0 +1,44 @@
+# =====================
+# Virtual Environment
+# =====================
+.venv/
+venv/
+env/
+
+# =====================
+# Python cache
+# =====================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# =====================
+# Django
+# =====================
+db.sqlite3
+*.log
+*.pot
+*.pyc
+
+# migrations (optional if you want clean repo)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# =====================
+# Environment variables
+# =====================
+.env
+
+# =====================
+# IDE / Editor
+# =====================
+.vscode/
+.idea/
+*.swp
+
+# =====================
+# OS files
+# =====================
+.DS_Store
+Thumbs.db
