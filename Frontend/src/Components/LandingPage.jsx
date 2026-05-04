@@ -345,6 +345,7 @@ const LandingPage = () => {
               Coverage by Global Zone
             </h2>
             <div style={{
+              className: 'zone-grid',
               display: 'grid',
               gridTemplateColumns: 'repeat(4, 1fr)',
               gap: '1.5rem',
@@ -668,7 +669,7 @@ const LandingPage = () => {
             color: 'rgba(219, 234, 254, 0.6)',
             fontWeight: 500
           }}>
-            <p>© 2023 WeatherDash</p>
+            <p>© 2026 WeatherDash</p>
             <div style={{ display: 'flex', gap: '1.5rem' }}>
               <a href="#" style={{ color: 'rgba(219, 234, 254, 0.6)', textDecoration: 'none' }}>Privacy Policy</a>
               <a href="#" style={{ color: 'rgba(219, 234, 254, 0.6)', textDecoration: 'none' }}>Terms of Use</a>

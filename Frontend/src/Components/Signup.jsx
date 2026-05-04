@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 import api from "../axios_service/axios";
 import { useNavigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 export default function Signup() {
   const [form, setForm] = useState({
     first_name: "",
@@ -17,20 +19,19 @@ export default function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     try {
       const res = await api.post("/auth/signup/", {
         username: form.username,
         email: form.email,
         password: form.password1,
       });
-  
       console.log(res.data);
-  
+      toast.success("Signup successful");
       // go to login page after success
       navigate("/signin");
     } catch (err) {
       console.log(err.response?.data);
+      toast.error("Signup failed, try again");
     }
   };
   return (
