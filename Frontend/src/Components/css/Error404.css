@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    h1, h2, h3 {
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .error-page {
+      background: linear-gradient(135deg, #007bb5 0%, #005a84 100%);
+      min-height: 100vh;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .error-page::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: -5%;
+      width: 40%;
+      height: 40%;
+      background: #007bb5;
+      opacity: 0.2;
+      filter: blur(120px);
+      border-radius: 50%;
+    }
+
+    .error-page::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      right: -5%;
+      width: 50%;
+      height: 50%;
+      background: #7b3200;
+      opacity: 0.1;
+      filter: blur(150px);
+      border-radius: 50%;
+    }
+
+    .error-container {
+      text-align: center;
+      z-index: 10;
+      max-width: 500px;
+    }
+
+    .cloud-container {
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .cloud-icon img {
+      width: 20rem;
+      height: 20rem;
+      object-fit: contain;
+      mix-blend-mode: lighten;
+      opacity: 0.9;
+      filter: drop-shadow(0 10px 30px rgba(255, 255, 255, 0.2));
+      border-radius: 40px;
+    }
+
+    .air-icon {
+      position: absolute;
+      top: -1rem;
+      right: -1rem;
+      width: 3rem;
+      height: 3rem;
+      background: #007bb5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .error-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .error-message {
+      font-size: 1.1rem;
+      opacity: 0.8;
+      max-width: 400px;
+      margin: 0 auto 2rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .home-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(90deg, #007bb5, #005a84);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s;
+    }
+
+    .home-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .home-icon {
+      font-family: 'Material Symbols Outlined';
+      font-variation-settings: 'FILL' 0, 'wght' 400;
+      transition: transform 0.3s;
+    }
+
+    .home-button:hover .home-icon {
+      transform: rotate(-45deg);
+    }
+
+    .footer-text {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      opacity: 0.4;
+      text-transform: uppercase;
+    }
