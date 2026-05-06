@@ -22,13 +22,13 @@ class ServicesViews(View):
         """ weather """
         weather = get_weather(city)
         if weather.get("cod") != 200:
-            return JsonResponse({"error": f"Ville '{city}' introuvable"}, status=404)
+            return JsonResponse({"error": f"Ville '{city}' introuvable"}, status=405)
 
         """ convert country → region """
         country_code = weather["sys"]["country"]
         region_name  = detect_region(country_code)
         if region_name == "Unknown region for this country":
-            return JsonResponse({"error": f"Ville '{city}' introuvable, invalide Region"}, status=404)
+            return JsonResponse({"error": f"Ville '{city}' introuvable, invalide Region"}, status=406)
 
         """ verify DB region """
         region_obj = Region.objects.filter(nom=region_name).first()

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -21,44 +22,48 @@ import SouthAmerica from "./Components/region/SouthAmerica";
 import SouthAsia from "./Components/region/SouthAsia";
 import SoutheastAsia from "./Components/region/SoutheastAsia";
 import Error404 from "./Components/Error404.jsx";
+const WeatherGlobe = lazy(() => import("./Components/weather-globe/WeatherGlobe.jsx"));
 export default function App() {
   return (
     <BrowserRouter>
-    <>
-    {/* Toast Container */}
-      <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          theme="colored"
-        />
-     {/*chatbot Wedghy */}
-       <Wedghy/>
-      <Routes>
-        {/* Redirect */}
-        <Route path="/" element={<Navigate to="/LandingPage" />} />
+    <Suspense fallback={<div style={{ padding: 24, color: "#fff" }}>Loading application...</div>}>
+      <>
+      {/* Toast Container */}
+        <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            theme="colored"
+          />
+       {/*chatbot Wedghy */}
+         <Wedghy/>
+        <Routes>
+          {/* Redirect */}
+          <Route path="/" element={<Navigate to="/LandingPage" />} />
 
-        {/* Main pages */}
-        <Route path="/LandingPage" element={<LandingPage />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
-        <Route path="/home" element={<Home />} />
+          {/* Main pages */}
+          <Route path="/LandingPage" element={<LandingPage />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/globe" element={<WeatherGlobe />} />
 
-        {/* Region pages */}
-        <Route path="/africa" element={<Africa />} />
-        <Route path="/europe" element={<Europe />} />
-        <Route path="/north-america" element={<NorthAmerica />} />
-        <Route path="/south-america" element={<SouthAmerica />} />
-        <Route path="/middle-east" element={<MiddleEast />} />
-        <Route path="/south-asia" element={<SouthAsia />} />
-        <Route path="/southeast-asia" element={<SoutheastAsia />} />
-        <Route path="/east-asia" element={<EastAsia />} />
-        <Route path="/central-asia" element={<CentralAsia />} />
-        <Route path="/oceania" element={<Oceania />} />
-        <Route path="/antarctica" element={<Antarctica />} />
-        {/* Error 404 */}
-        <Route path="/*" element={<Error404 />} />
-      </Routes>
-      </>
+          {/* Region pages */}
+          <Route path="/africa" element={<Africa />} />
+          <Route path="/europe" element={<Europe />} />
+          <Route path="/north-america" element={<NorthAmerica />} />
+          <Route path="/south-america" element={<SouthAmerica />} />
+          <Route path="/middle-east" element={<MiddleEast />} />
+          <Route path="/south-asia" element={<SouthAsia />} />
+          <Route path="/southeast-asia" element={<SoutheastAsia />} />
+          <Route path="/east-asia" element={<EastAsia />} />
+          <Route path="/central-asia" element={<CentralAsia />} />
+          <Route path="/oceania" element={<Oceania />} />
+          <Route path="/antarctica" element={<Antarctica />} />
+          {/* Error 404 */}
+          <Route path="/*" element={<Error404 />} />
+        </Routes>
+        </>
+    </Suspense>
     </BrowserRouter>
   );
 }

@@ -6,6 +6,8 @@ class Region(models.Model):
     nom = models.CharField(max_length=100)
     def __str__(self):
         return  self.nom
+    class Meta:
+        db_table = 'home_region'
 
 # model Ville:
 class Ville(models.Model):
@@ -15,3 +17,5 @@ class Ville(models.Model):
     
     def __str__(self):
         return f"{self.nom} , {self.pays}"
+    class Meta:
+        db_table = 'home_ville'

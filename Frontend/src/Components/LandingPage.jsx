@@ -227,6 +227,21 @@ const LandingPage = () => {
                 }}>
                   Get Started for Free
                 </a>
+                <a href="/globe" style={{
+                  display: 'inline-block',
+                  marginLeft: '0.75rem',
+                  padding: '1rem 2rem',
+                  background: 'rgba(255, 255, 255, 0.12)',
+                  color: '#fff',
+                  borderRadius: '0.75rem',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  cursor: 'pointer'
+                }}>
+                  Open 3D Globe
+                </a>
               </div>
               <div style={{ position: 'relative', cursor: 'pointer', paddingTop: '1rem' }}>
                 <div style={{

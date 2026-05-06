@@ -1,17 +1,23 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import {Helmet} from "react-helmet";
+import { useEffect } from "react";
 
 export default function Wedghy () {
-    return (
-        <>
-        {/*chatbot */}
-        <Helmet>
-        <script type="module" defer>
+    useEffect(() => {
+        const script = document.createElement("script");
+        script.type = "module";
+        script.defer = true;
+        script.textContent = `
             import n8nChatUiWidget from 'https://proxy.n8nchatui.com/api/embed/40SBa9';
             n8nChatUiWidget.load();
-        </script>
-        </Helmet>
-        </>
+        `;
+
+        document.body.appendChild(script);
+
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
+    return (
+        <></>
     )
 }

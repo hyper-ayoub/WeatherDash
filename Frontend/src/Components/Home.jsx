@@ -172,33 +172,23 @@ export default function Home() {
     navigate("/");
   };
 
-  const fetchWeather = async (city) => {
-    try {
-      const d = await fetch(`http://127.0.0.1:8000/api/services/?city=${encodeURIComponent(city)}`).then(r => r.json());
-      if (!d.error) setData({ weather: d.weather, forecast: d.forecast, image: d.image, windy_embed: d.windy_embed });
-      else setGeoErr(true);
-    } catch { setGeoErr(true); }
-    setLoading(false);
-  };
-  
   useEffect(() => {
-    const cached = localStorage.getItem("userCity");
-    if (cached) { fetchWeather(cached); return; }
     if (!navigator.geolocation) { setGeoErr(true); setLoading(false); return; }
-  
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          const geo  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`).then(r => r.json());
-          const city = geo.address?.city || geo.address?.town || geo.address?.village;
-          if (city) { localStorage.setItem("userCity", city); fetchWeather(city); }
-          else { setGeoErr(true); setLoading(false); }
-        } catch { setGeoErr(true); setLoading(false); }
+          const geoRes  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`);
+          const geoData = await geoRes.json();
+          const city    = geoData.address?.city || geoData.address?.town || geoData.address?.village || "casablanckgfa";
+          const res     = await fetch(`http://127.0.0.1:8000/api/services/?city=${encodeURIComponent(city)}`);
+          const d       = await res.json();
+          if (!d.error) {
+            setData({ weather: d.weather, forecast: d.forecast, image: d.image, windy_embed: d.windy_embed });
+          } else { setGeoErr(true); }
+        } catch { setGeoErr(true); }
+        setLoading(false);
       },
-      () => {
-        const c = localStorage.getItem("userCity");
-        c ? fetchWeather(c) : (setGeoErr(true), setLoading(false));
-      }
+      () => { setGeoErr(true); setLoading(false); }
     );
   }, []);
 
@@ -294,7 +284,7 @@ export default function Home() {
                   ) : geoErr ? (
                     <div style={{display:"flex",alignItems:"center",gap:16,padding:"20px 0"}}>
                       <span className="material-symbols-outlined" style={{fontSize:64,color:"rgba(255,255,255,0.2)"}}>cloud_queue</span>
-                      <p style={{color:"rgba(255,255,255,0.4)",fontSize:16}}>Please allow location access to see your local weather</p>
+                      <p style={{color:"rgba(255,255,255,0.4)",fontSize:16}}>Search for a city in a region to see weather data</p>
                     </div>
                   ) : w && (
                     <>
