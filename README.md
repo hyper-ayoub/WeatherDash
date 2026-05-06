@@ -62,6 +62,14 @@ cd Frontend
 npm install
 npm run dev
 ```
+### Conception
+
+```bash
+ Diagramme de Cas d’Utilisation
+ Diagramme de Séquence
+ Diagramme de Classes
+
+```
 
 ---
 
