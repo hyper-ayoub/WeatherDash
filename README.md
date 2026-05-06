@@ -1,18 +1,76 @@
- # WeatherDash Django-based weather application with a focus on global world zones, by hamza
+# WeatherDash 🌍
 
-The browser frontend now lives in [client/](client), built with React and Vite. The Django project remains the backend and exposes JSON endpoints under `/backend/api/`.
+A full-stack weather application built with **Django** and **React**, focused on global weather intelligence across all world regions.
 
-Run the backend in `WeatherDash/` and the frontend in `client/`.
+---
 
+## Screenshots
 
-<img width="1912" height="1788" alt="screencapture-127-0-0-1-8000-2026-03-29-23_19_58" src="https://github.com/user-attachments/assets/b1f57a67-5b9e-4ed2-ba49-378162788cbb" />
+<img width="1912" alt="Landing" src="https://github.com/user-attachments/assets/b1f57a67-5b9e-4ed2-ba49-378162788cbb" />
+<img width="1912" alt="Sign In" src="https://github.com/user-attachments/assets/c2910579-6e20-4dae-95cf-5d6b0fc923a8" />
+<img width="1912" alt="Sign Up" src="https://github.com/user-attachments/assets/f520e53d-545b-4440-ab55-a36894951f6f" />
+<img width="1887" alt="Dashboard" src="https://github.com/user-attachments/assets/6ae20292-6b24-49d2-b82c-9feb44a7ddc7" />
 
+---
 
+## Tech Stack
 
-<img width="1912" height="956" alt="screencapture-127-0-0-1-8000-authentification-signin-2026-03-29-23_20_29" src="https://github.com/user-attachments/assets/c2910579-6e20-4dae-95cf-5d6b0fc923a8" />
+| Layer    | Technology          |
+|----------|---------------------|
+| Frontend | React + Vite        |
+| Backend  | Django              |
+| Weather  | OpenWeatherMap API  |
+| Images   | Unsplash API        |
+| Radar    | Windy API           |
+| Maps     | Nominatim (OSM)     |
 
-<img width="1912" height="956" alt="screencapture-127-0-0-1-8000-authentification-signup-2026-03-29-23_21_20" src="https://github.com/user-attachments/assets/f520e53d-545b-4440-ab55-a36894951f6f" />
+---
 
+## Features
 
+- 🌍 **11 World Regions** — Africa, Europe, North America, South America, Middle East, South Asia, Southeast Asia, East Asia, Central Asia, Oceania, Antarctica
+- 📍 **Auto Location Detection** — detects your city on first visit, cached forever
+- 🌡️ **Live Weather** — temperature, humidity, wind, pressure, visibility
+- 📅 **7-Day Forecast** — daily high/low with weather conditions
 
-<img width="1887" height="930" alt="1" src="https://github.com/user-attachments/assets/6ae20292-6b24-49d2-b82c-9feb44a7ddc7" />
+---
+
+## Project Structure
+
+```
+Backend/              # Django backend
+Frontend/             # React + Vite frontend
+```
+
+---
+
+## Getting Started
+
+### Backend
+
+```bash
+cd WeatherDash
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+### Frontend
+
+```bash
+cd Frontend
+npm install
+npm run dev
+```
+
+---
+
+## API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `/api/services/?city=Paris` | Current weather + forecast + radar |
+| `/api/antarctica/?station=McMurdo Station` | Antarctica stations weather |
+
+---
+
