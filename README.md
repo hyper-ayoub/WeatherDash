@@ -7,8 +7,10 @@ A full-stack weather application built with **Django** and **React**, focused on
 ## Screenshots
 
 <img width="1912" alt="Landing" src="https://github.com/user-attachments/assets/b1f57a67-5b9e-4ed2-ba49-378162788cbb" />
-<img width="1912" alt="Sign In" src="https://github.com/user-attachments/assets/c2910579-6e20-4dae-95cf-5d6b0fc923a8" />
-<img width="1912" alt="Sign Up" src="https://github.com/user-attachments/assets/f520e53d-545b-4440-ab55-a36894951f6f" />
+<img width="1380" height="912" alt="image" src="https://github.com/user-attachments/assets/5224fd59-a290-4b18-ad1b-f2ed30b3cb09" />
+<br>
+<img width="1169" height="702" alt="image" src="https://github.com/user-attachments/assets/9e63c7dd-13c6-456d-bdba-c365dddca9af" />
+<br>
 <img width="1887" alt="Dashboard" src="https://github.com/user-attachments/assets/6ae20292-6b24-49d2-b82c-9feb44a7ddc7" />
 
 ---
