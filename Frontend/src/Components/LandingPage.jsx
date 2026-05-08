@@ -240,7 +240,7 @@ const LandingPage = () => {
                   border: '1px solid rgba(255, 255, 255, 0.25)',
                   cursor: 'pointer'
                 }}>
-                  Open 3D Globe
+                  Explore 3D Globe
                 </a>
               </div>
               <div style={{ position: 'relative', cursor: 'pointer', paddingTop: '1rem' }}>
