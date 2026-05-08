@@ -46,7 +46,30 @@ export default function Signup() {
         <nav className="auth-top-nav" aria-label="Auth navigation">
           <div className="auth-top-inner">
             <div className="auth-brand-wrap">
-              <span className="auth-brand-icon" aria-hidden="true">☁</span>
+            <div style={{
+              width: '2.5rem',
+              height: '2.5rem',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <svg
+                width="24"
+                height="24"
+                fill="none"
+                stroke="white"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                />
+              </svg>
+            </div>
               <span className="auth-brand">WeatherDash</span>
             </div>
             <Link to="/LandingPage" className="auth-home-link">Return to Landing Page</Link>
