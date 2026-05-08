@@ -1,10 +1,11 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import './css/Layout.css';
 
 const regions = [
+  { name: "Home",           icon: "home",                    path: "/home" },
   { name: "Africa",         icon: "public",                  path: "/africa" },
   { name: "Europe",         icon: "euro_symbol",             path: "/europe" },
   { name: "North America",  icon: "map",                     path: "/north-america" },
@@ -18,8 +19,11 @@ const regions = [
   { name: "Antarctica",     icon: "ac_unit",                 path: "/antarctica" },
 ];
 
+const REGION_NAMES = new Set(regions.filter((region) => region.name !== "Home").map((region) => region.name));
+
 export default function Layout({ children }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const initials = (user.username || "U").charAt(0).toUpperCase();
   const [searchCity, setSearchCity] = useState("");
@@ -46,7 +50,7 @@ export default function Layout({ children }) {
         "Oceania": "/oceania",
         "Antarctica": "/antarctica"
       }
-      navigate(routes[data.region]);
+      navigate(routes[data.region], { state: { fromSearch: true } });
       window.dispatchEvent(new Event("cityChanged"));
     } catch (error) {
       console.log(error);
@@ -55,6 +59,15 @@ export default function Layout({ children }) {
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/");
+  };
+
+  const handleRegionSelect = (event, regionName, path) => {
+    if (regionName === "Home") return;
+    event.preventDefault();
+    window.dispatchEvent(new CustomEvent("regionFocusChanged", { detail: { regionName } }));
+    if (location.pathname !== path) {
+      navigate(path, { replace: true });
+    }
   };
 
   return (
@@ -109,7 +122,13 @@ export default function Layout({ children }) {
 
             <nav className="wd-nav">
               {regions.map((w) => (
-                <Link key={w.name} to={w.path} className="wd-nav-item" style={{textDecoration:"none"}}>
+                <Link
+                  key={w.name}
+                  to={w.path}
+                  className={`wd-nav-item${location.pathname === w.path ? " active" : ""}`}
+                  onClick={(event) => handleRegionSelect(event, w.name, w.path)}
+                  style={{ textDecoration: "none" }}
+                >
                   <span className="material-symbols-outlined" style={{fontSize:20}}>{w.icon}</span>
                   {w.name}
                 </Link>

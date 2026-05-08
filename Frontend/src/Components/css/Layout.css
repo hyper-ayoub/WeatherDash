@@ -118,6 +118,11 @@
     transition: color 0.2s, background 0.2s; margin-bottom: 4px;
   }
   .wd-nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .wd-nav-item.active {
+    color: #fff;
+    background: rgba(255,255,255,0.16);
+    border: 1px solid rgba(255,255,255,0.22);
+  }
   .wd-sidebar-footer {
     padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.05);
   }

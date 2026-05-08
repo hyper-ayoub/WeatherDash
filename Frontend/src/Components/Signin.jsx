@@ -1,8 +1,9 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import api from "../axios_service/axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
+import "./css/Auth.css";
 export default function Signin() {
   const [form, setForm] = useState({
     username: "",
@@ -40,106 +41,76 @@ export default function Signin() {
   };
 
   return (
-    <Fragment>
-     <style>{`
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-  body {
-    background-image: url("https://images.unsplash.com/photo-1720639128406-5197cb67169a?q=80&w=1074&auto=format&fit=crop");
-    background-repeat: no-repeat; background-size: cover;
-    display: flex; justify-content: center; align-items: center; min-height: 100vh;
-  }
-
-  .container { display: flex; background-color: white; border-radius: 10px; overflow: hidden; width: 900px; max-width: 95%; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-  .form-container { padding: 40px; width: 50%; }
-  .image-container { width: 50%; background-image: url('https://images.unsplash.com/photo-1534068731687-d70176c2e7d5?q=80&w=687&auto=format&fit=crop'); background-size: cover; }
-
-  h1 { font-size: 28px; margin-bottom: 40px; color: #333; text-align: center; }
-  .input-group { margin-bottom: 30px; }
-  label { display: block; margin-bottom: 8px; color: #555; }
-
-  input[type="text"], input[type="email"], input[type="password"] {
-    width: 100%; padding: 15px; border: 1px solid #ddd;
-    border-radius: 30px; font-size: 16px; outline: none;
-  }
-  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
-    border-color: #000080; box-shadow: 0 0 5px rgba(0,0,128,0.3);
-  }
-
-  .checkbox-group { display: flex; align-items: center; margin-bottom: 15px; }
-  .checkbox-group input { margin-right: 10px; }
-
-  button { background-color: #000080; color: white; border: none; padding: 14px; border-radius: 30px; font-size: 16px; width: 100%; transition: background-color 0.3s; cursor: pointer; }
-  button:hover { background-color: black; }
-
-  .bottom-text { margin-top: 20px; text-align: center; color: #555; }
-  .bottom-text a { color: #000080; text-decoration: none; }
-  .bottom-text a:hover { text-decoration: underline; }
-
-  @media (max-width: 768px) {
-    .container { flex-direction: column; }
-    .form-container { width: 100%; padding: 24px; }
-    .image-container { width: 100%; height: 200px; }
-    h1 { font-size: 22px; margin-bottom: 24px; }
-    .input-group { margin-bottom: 16px; }
-    input[type="text"], input[type="email"], input[type="password"] { padding: 12px; font-size: 14px; }
-    button { padding: 12px; font-size: 14px; }
-  }
-
-  @media (max-width: 480px) {
-    .form-container { padding: 16px; }
-    h1 { font-size: 18px; }
-    .container { border-radius: 0; }
-  }
-`}</style>
-
-      <div className="container">
-        <div className="form-container">
-          <h1>Login Form</h1>
-          <form onSubmit={handleSubmit}>
-            <div className="input-group">
-              <label>Email or Username</label>
-              <input
-                type="text"
-                name="username"
-                onChange={handleChange}
-                required
-              />
+      <div className="auth-page auth-page-login">
+        <nav className="auth-top-nav" aria-label="Auth navigation">
+          <div className="auth-top-inner">
+            <div className="auth-brand-wrap">
+              <span className="auth-brand-icon" aria-hidden="true">☁</span>
+              <span className="auth-brand">WeatherDash</span>
             </div>
+            <Link to="/LandingPage" className="auth-home-link">Return to Landing Page</Link>
+          </div>
+        </nav>
 
-            <div className="input-group">
-              <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <div className="auth-shell">
+          <aside className="auth-visual" aria-hidden="true">
+            <p className="auth-kicker">WeatherDash</p>
+            <h2>Track weather shifts in real time.</h2>
+            <p>
+              From heat maps to regional insights, your forecast workspace is
+              one login away.
+            </p>
+          </aside>
 
-            <div className="checkbox-group">
-              <input
-                type="checkbox"
-                name="remember"
-                onChange={handleChange}
-                id="remember"
-              />
-              <label htmlFor="remember">Remember me</label>
-            </div>
+          <section className="auth-panel">
+            <h1>Welcome back</h1>
+            <p className="auth-subtitle">Sign in to continue to your dashboard.</p>
+            <form onSubmit={handleSubmit} className="auth-form">
+              <div className="auth-field">
+                <label htmlFor="username">Email or Username</label>
+                <input
+                  id="username"
+                  type="text"
+                  name="username"
+                  onChange={handleChange}
+                  required
+                  autoComplete="username"
+                />
+              </div>
 
-            <button type="submit">Login Now</button>
+              <div className="auth-field">
+                <label htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  onChange={handleChange}
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
 
-            <div className="bottom-text">
-              <p>
-                Don't have an account? <a href="/signup">Signup</a>
+              <div className="auth-options">
+                <label className="auth-check" htmlFor="remember">
+                  <input
+                    type="checkbox"
+                    name="remember"
+                    onChange={handleChange}
+                    id="remember"
+                  />
+                  <span>Remember me</span>
+                </label>
+                <a href="#" className="auth-link-muted">Forgot password?</a>
+              </div>
+
+              <button type="submit" className="auth-button">Sign In</button>
+
+              <p className="auth-bottom-text">
+                New here? <Link to="/signup">Create an account</Link>
               </p>
-              <a href="#">Forgot password?</a>
-            </div>
-          </form>
+            </form>
+          </section>
         </div>
-
-        <div className="image-container"></div>
       </div>
-    </Fragment>
   );
 }

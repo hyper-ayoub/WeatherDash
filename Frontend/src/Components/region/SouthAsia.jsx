@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Layout from "../Layout";
 import "./css/Global.css";
+import RegionDefaultView from "./RegionDefaultView";
+import { getRegionDefaults } from "./regionConfig";
 import southasia from "../../assets/images/southasia.png";
 
 const styles = `
@@ -26,19 +29,27 @@ const FC_ICONS = [
   { icon: "partly_cloudy_day", color: "#f59e0b" },
 ];
 
+const REGION = getRegionDefaults("South Asia");
+
 export default function SouthAsia() {
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [data, setData]       = useState(null);
+  const [hasStored, setHasStored] = useState(false);
+  const [focusRegion, setFocusRegion] = useState(REGION.label);
 
 
   const loadData = () => {
-    const stored = localStorage.getItem("weatherData_South Asia");
+    const stored = localStorage.getItem(REGION.storageKey);
     if (!stored) {
-      setLoading(true); // skeleton reste affiché
+      setHasStored(false);
+      setData(null);
+      setLoading(false);
       return;
     }
-    const sa = JSON.parse(stored);
-    const { weather, forecast, image, windy_embed } = sa;
+
+    const e = JSON.parse(stored);
+    const { weather, forecast, image, windy_embed } = e;
 
     setData({
       city:       weather.name,
@@ -53,7 +64,7 @@ export default function SouthAsia() {
       visibility: Math.round(weather.visibility / 1000),
       condition:  weather.weather[0].description,
       bgImage:    image,
-      windyEmbed: windy_embed ,
+      windyEmbed: windy_embed + "&autoplay=1",
       forecast:   forecast.list?.slice(0, 7).map((item, i) => ({
         day:   FC_DAYS[i],
         high:  Math.round(item.main.temp_max),
@@ -64,16 +75,45 @@ export default function SouthAsia() {
       })),
     });
 
+    setHasStored(true);
     setLoading(false);
   };
 
   useEffect(() => {
-    // Charge au démarrage
-    loadData();
-    // Recharge quand Layout envoie le signal cityChanged
+    const handleRegionFocusChanged = (event) => {
+      const nextRegion = event.detail?.regionName;
+      if (!nextRegion) return;
+      setFocusRegion(nextRegion);
+      setHasStored(false);
+      setData(null);
+      setLoading(false);
+    };
+
+    window.addEventListener("regionFocusChanged", handleRegionFocusChanged);
+    return () => window.removeEventListener("regionFocusChanged", handleRegionFocusChanged);
+  }, []);
+
+  useEffect(() => {
+    // When navigating to a region, always show the region georadar by default.
+    // Do not automatically restore a previously searched city on navigation.
+    setHasStored(false);
+    setData(null);
+    setLoading(false);
+
+    // Only load stored city when an explicit search happens (cityChanged event).
     window.addEventListener("cityChanged", loadData);
     return () => window.removeEventListener("cityChanged", loadData);
-  }, []);
+  }, [location.pathname]);
+  if (!hasStored) {
+    return (
+      <Layout>
+        <style>{styles}</style>
+        <div className="sa-root">
+          <RegionDefaultView regionName={focusRegion} regionCoords={[getRegionDefaults(focusRegion).coords.lat, getRegionDefaults(focusRegion).coords.lon]} />
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -233,7 +273,7 @@ export default function SouthAsia() {
               <div className="sa-radar-hdr">
                 <div className="sa-radar-title">
                   <span className="material-symbols-outlined">radar</span>
-                  Regional Radar: {loading ? "..." : data?.city}
+                  Regional Radar: {data?.city || REGION.label}
                 </div>
                 <div className="sa-radar-btns">
                   <button className="sa-radar-btn on">LIVE</button>

@@ -1,7 +1,8 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const regions = [
+  { name: "Home",           icon: "home",                    path: "/home" },
   { name: "Africa",         icon: "public",                  path: "/africa" },
   { name: "Europe",         icon: "euro_symbol",             path: "/europe" },
   { name: "North America",  icon: "map",                     path: "/north-america" },
@@ -48,6 +49,7 @@ const styles = `
   .wd-nav { flex: 1; overflow-y: auto; padding: 0 16px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.10) transparent; }
   .wd-nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; color: rgba(255,255,255,0.60); font-size: 14px; text-decoration: none; cursor: pointer; border: none; background: transparent; width: 100%; transition: color 0.2s, background 0.2s; margin-bottom: 4px; }
   .wd-nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .wd-nav-item.active { color: #fff; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.22); }
   .wd-sidebar-footer { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.05); }
   .wd-footer-link { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 8px; color: rgba(255,255,255,0.40); font-size: 12px; font-weight: 500; text-decoration: none; transition: color 0.2s; }
   .wd-footer-link:hover { color: #fff; }
@@ -160,6 +162,7 @@ const FC_ICONS = ["wb_sunny","partly_cloudy_day","cloud","rainy","wb_sunny","clo
 
 export default function Home() {
   const navigate = useNavigate();
+  const location = useLocation();
   const user     = JSON.parse(localStorage.getItem("user")) || {};
   const initials = (user.username || "U").charAt(0).toUpperCase();
 
@@ -229,7 +232,12 @@ export default function Home() {
             </div>
             <nav className="wd-nav">
               {regions.map((r) => (
-                <Link key={r.name} to={r.path} className="wd-nav-item" style={{textDecoration:"none"}}>
+                <Link
+                  key={r.name}
+                  to={r.path}
+                  className={`wd-nav-item${location.pathname === r.path ? " active" : ""}`}
+                  style={{ textDecoration: "none" }}
+                >
                   <span className="material-symbols-outlined" style={{fontSize:20}}>{r.icon}</span>
                   {r.name}
                 </Link>

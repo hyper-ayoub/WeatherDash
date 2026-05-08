@@ -18,5 +18,5 @@ def get_windy_embed_url(lat, lon):
     Windy Embed URL
     Doc: https://windy.com/embed
     """
-    params = f"lat={lat}&lon={lon}&zoom=5&level=surface&overlay=wind"
+    params = f"lat={lat}&lon={lon}&zoom=4&level=surface&overlay=wind"
     return f"https://embed.windy.com/embed2.html?{params}"
