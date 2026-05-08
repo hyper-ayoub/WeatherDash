@@ -3,10 +3,7 @@
   width: 100%;
   display: grid;
   grid-template-columns: 360px 1fr;
-  background:
-    radial-gradient(circle at top left, rgba(41, 98, 255, 0.16), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(255, 94, 58, 0.12), transparent 24%),
-    linear-gradient(145deg, #04111f 0%, #08162d 52%, #071018 100%);
+   background: linear-gradient(135deg, white 0%, #3b82f6 18%, #60a5fa 100%);
   color: #f8fbff;
   overflow: hidden;
 }
@@ -45,7 +42,7 @@
 .weather-map__forecast-card {
   padding: 18px;
   border-radius: 20px;
-  background: rgba(15, 23, 42, 0.72);
+  background: linear-gradient(135deg, white 1%, #3b82f6 18%, #60a5fa 100%);
   border: 1px solid rgba(148, 163, 184, 0.16);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.26);
 }
@@ -58,7 +55,7 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: rgba(148, 163, 184, 0.86);
+  color: white;
   margin-bottom: 10px;
 }
 
@@ -75,7 +72,7 @@
   gap: 14px;
   margin-top: 10px;
   font-size: 13px;
-  color: rgba(226, 232, 240, 0.8);
+  color: white;
 }
 
 .weather-map__mini-row strong {
@@ -92,7 +89,7 @@
 .weather-map__forecast-city-hint {
   margin-top: 6px;
   font-size: 12px;
-  color: rgba(148, 163, 184, 0.82);
+color: white;
 }
 
 .weather-map__stats-grid span,
@@ -138,7 +135,7 @@
 .weather-map__layer-note {
   font-size: 12px;
   line-height: 1.6;
-  color: rgba(226, 232, 240, 0.78);
+  color: white;
 }
 
 .weather-map__slider {
@@ -150,7 +147,7 @@
 .weather-map__slider input[type="range"] {
   width: 100%;
   margin: 12px 0 8px;
-  accent-color: #60a5fa;
+  accent-color: white;
 }
 
 .weather-map__slider-top,
@@ -159,7 +156,7 @@
   justify-content: space-between;
   gap: 12px;
   font-size: 12px;
-  color: rgba(226, 232, 240, 0.82);
+  color: white;
 }
 
 .weather-map__actions {
@@ -193,7 +190,7 @@
 
 .weather-map__hint {
   font-size: 12px;
-  color: rgba(148, 163, 184, 0.88);
+  color: white;
 }
 
 .weather-map__canvas-wrap {
