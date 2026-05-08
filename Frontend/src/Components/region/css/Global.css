@@ -51,14 +51,18 @@
 
 /* New region map view */
 .region-default-view {
-  min-height: calc(100vh - 72px);
+  height: calc(110vh - 72px);
   display: flex;
   flex-direction: column;
   gap: 0;
   padding: 0;
-  background: linear-gradient(145deg, #04111f 0%, #08162d 52%, #071018 100%);
+  background: linear-gradient(
+    160deg,
+    #1a4a7a 55%,
+  );
   position: relative;
   overflow: hidden;
+  border-radius: 4px;
 }
 
 .region-map-topbar {
