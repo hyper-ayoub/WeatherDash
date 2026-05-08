@@ -93,7 +93,7 @@ export default function RegionDefaultView({ regionName, regionCoords }) {
   const windCanvasRef = useRef(null);
   const windParticlesRef = useRef([]);
   const windAnimationRef = useRef(null);
-  const overlayLayersRef = useRef({}); // Store overlay layers here
+  const overlayLayersRef = useRef({});
   const [weather, setWeather] = useState(null);
   const [overlayState, setOverlayState] = useState({
     heatmap: true,
