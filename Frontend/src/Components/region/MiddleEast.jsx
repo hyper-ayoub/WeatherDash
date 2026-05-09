@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import Layout from "../Layout";
 import "./css/Global.css";
-import RegionDefaultView from "./RegionDefaultView";
-import { getRegionDefaults } from "./regionConfig";
 import middleEast from "../../assets/images/middleeast.png";
 
 const styles = `
@@ -29,27 +26,19 @@ const FC_ICONS = [
   { icon: "partly_cloudy_day", color: "#f59e0b" },
 ];
 
-const REGION = getRegionDefaults("Middle East");
-
 export default function MiddleEast() {
-  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [data, setData]       = useState(null);
-  const [hasStored, setHasStored] = useState(false);
-  const [focusRegion, setFocusRegion] = useState(REGION.label);
 
 
   const loadData = () => {
-    const stored = localStorage.getItem(REGION.storageKey);
+    const stored = localStorage.getItem("weatherData_Middle East");
     if (!stored) {
-      setHasStored(false);
-      setData(null);
-      setLoading(false);
+      setLoading(true); // skeleton reste affiché
       return;
     }
-
-    const e = JSON.parse(stored);
-    const { weather, forecast, image, windy_embed } = e;
+    const md = JSON.parse(stored);
+    const { weather, forecast, image, windy_embed } = md;
 
     setData({
       city:       weather.name,
@@ -75,45 +64,16 @@ export default function MiddleEast() {
       })),
     });
 
-    setHasStored(true);
     setLoading(false);
   };
 
   useEffect(() => {
-    const handleRegionFocusChanged = (event) => {
-      const nextRegion = event.detail?.regionName;
-      if (!nextRegion) return;
-      setFocusRegion(nextRegion);
-      setHasStored(false);
-      setData(null);
-      setLoading(false);
-    };
-
-    window.addEventListener("regionFocusChanged", handleRegionFocusChanged);
-    return () => window.removeEventListener("regionFocusChanged", handleRegionFocusChanged);
-  }, []);
-
-  useEffect(() => {
-    // When navigating to a region, always show the region georadar by default.
-    // Do not automatically restore a previously searched city on navigation.
-    setHasStored(false);
-    setData(null);
-    setLoading(false);
-
-    // Only load stored city when an explicit search happens (cityChanged event).
+    // Charge au démarrage
+    loadData();
+    // Recharge quand Layout envoie le signal cityChanged
     window.addEventListener("cityChanged", loadData);
     return () => window.removeEventListener("cityChanged", loadData);
-  }, [location.pathname]);
-  if (!hasStored) {
-    return (
-      <Layout>
-        <style>{styles}</style>
-        <div className="sa-root">
-          <RegionDefaultView regionName={focusRegion} regionCoords={[getRegionDefaults(focusRegion).coords.lat, getRegionDefaults(focusRegion).coords.lon]} />
-        </div>
-      </Layout>
-    );
-  }
+  }, []);
 
   return (
     <Layout>
@@ -273,7 +233,7 @@ export default function MiddleEast() {
               <div className="sa-radar-hdr">
                 <div className="sa-radar-title">
                   <span className="material-symbols-outlined">radar</span>
-                  Regional Radar: {data?.city || REGION.label}
+                  Regional Radar: {loading ? "..." : data?.city}
                 </div>
                 <div className="sa-radar-btns">
                   <button className="sa-radar-btn on">LIVE</button>
