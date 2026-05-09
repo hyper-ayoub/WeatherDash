@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import Layout from "../Layout";
 import "./css/Global.css";
-import southasia from "../../assets/images/southasia.png";
-
+import southeastAsia from "../../assets/images/southeastasia.png";
 const styles = `
 .sa-root {
   font-family: 'Inter', sans-serif;
-  background-image: url(${southasia});
+  background-image: url(${southeastAsia});
   background-repeat: no-repeat;
   background-size: cover;
   color: #191c1e;
@@ -26,19 +25,19 @@ const FC_ICONS = [
   { icon: "partly_cloudy_day", color: "#f59e0b" },
 ];
 
-export default function SouthAsia() {
+export default function SoutheastAsia() {
   const [loading, setLoading] = useState(true);
   const [data, setData]       = useState(null);
 
 
   const loadData = () => {
-    const stored = localStorage.getItem("weatherData_South Asia");
+    const stored = localStorage.getItem("weatherData_Southeast Asia");
     if (!stored) {
       setLoading(true); // skeleton reste affiché
       return;
     }
-    const sa = JSON.parse(stored);
-    const { weather, forecast, image, windy_embed } = sa;
+    const sha = JSON.parse(stored);
+    const { weather, forecast, image, windy_embed } = sha;
 
     setData({
       city:       weather.name,
@@ -53,7 +52,7 @@ export default function SouthAsia() {
       visibility: Math.round(weather.visibility / 1000),
       condition:  weather.weather[0].description,
       bgImage:    image,
-      windyEmbed: windy_embed ,
+      windyEmbed: windy_embed + "&autoplay=1",
       forecast:   forecast.list?.slice(0, 7).map((item, i) => ({
         day:   FC_DAYS[i],
         high:  Math.round(item.main.temp_max),
