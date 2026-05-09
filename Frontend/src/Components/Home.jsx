@@ -1,8 +1,7 @@
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 const regions = [
-  { name: "Home",           icon: "home",                    path: "/home" },
   { name: "Africa",         icon: "public",                  path: "/africa" },
   { name: "Europe",         icon: "euro_symbol",             path: "/europe" },
   { name: "North America",  icon: "map",                     path: "/north-america" },
@@ -49,7 +48,6 @@ const styles = `
   .wd-nav { flex: 1; overflow-y: auto; padding: 0 16px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.10) transparent; }
   .wd-nav-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; color: rgba(255,255,255,0.60); font-size: 14px; text-decoration: none; cursor: pointer; border: none; background: transparent; width: 100%; transition: color 0.2s, background 0.2s; margin-bottom: 4px; }
   .wd-nav-item:hover { color: #fff; background: rgba(255,255,255,0.05); }
-  .wd-nav-item.active { color: #fff; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.22); }
   .wd-sidebar-footer { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.05); }
   .wd-footer-link { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 8px; color: rgba(255,255,255,0.40); font-size: 12px; font-weight: 500; text-decoration: none; transition: color 0.2s; }
   .wd-footer-link:hover { color: #fff; }
@@ -162,7 +160,6 @@ const FC_ICONS = ["wb_sunny","partly_cloudy_day","cloud","rainy","wb_sunny","clo
 
 export default function Home() {
   const navigate = useNavigate();
-  const location = useLocation();
   const user     = JSON.parse(localStorage.getItem("user")) || {};
   const initials = (user.username || "U").charAt(0).toUpperCase();
 
@@ -175,23 +172,33 @@ export default function Home() {
     navigate("/");
   };
 
+  const fetchWeather = async (city) => {
+    try {
+      const d = await fetch(`http://127.0.0.1:8000/api/services/?city=${encodeURIComponent(city)}`).then(r => r.json());
+      if (!d.error) setData({ weather: d.weather, forecast: d.forecast, image: d.image, windy_embed: d.windy_embed });
+      else setGeoErr(true);
+    } catch { setGeoErr(true); }
+    setLoading(false);
+  };
+  
   useEffect(() => {
+    const cached = localStorage.getItem("userCity");
+    if (cached) { fetchWeather(cached); return; }
     if (!navigator.geolocation) { setGeoErr(true); setLoading(false); return; }
+  
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          const geoRes  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`);
-          const geoData = await geoRes.json();
-          const city    = geoData.address?.city || geoData.address?.town || geoData.address?.village || "casablanckgfa";
-          const res     = await fetch(`http://127.0.0.1:8000/api/services/?city=${encodeURIComponent(city)}`);
-          const d       = await res.json();
-          if (!d.error) {
-            setData({ weather: d.weather, forecast: d.forecast, image: d.image, windy_embed: d.windy_embed });
-          } else { setGeoErr(true); }
-        } catch { setGeoErr(true); }
-        setLoading(false);
+          const geo  = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`).then(r => r.json());
+          const city = geo.address?.city || geo.address?.town || geo.address?.village;
+          if (city) { localStorage.setItem("userCity", city); fetchWeather(city); }
+          else { setGeoErr(true); setLoading(false); }
+        } catch { setGeoErr(true); setLoading(false); }
       },
-      () => { setGeoErr(true); setLoading(false); }
+      () => {
+        const c = localStorage.getItem("userCity");
+        c ? fetchWeather(c) : (setGeoErr(true), setLoading(false));
+      }
     );
   }, []);
 
@@ -232,12 +239,7 @@ export default function Home() {
             </div>
             <nav className="wd-nav">
               {regions.map((r) => (
-                <Link
-                  key={r.name}
-                  to={r.path}
-                  className={`wd-nav-item${location.pathname === r.path ? " active" : ""}`}
-                  style={{ textDecoration: "none" }}
-                >
+                <Link key={r.name} to={r.path} className="wd-nav-item" style={{textDecoration:"none"}}>
                   <span className="material-symbols-outlined" style={{fontSize:20}}>{r.icon}</span>
                   {r.name}
                 </Link>
@@ -292,7 +294,7 @@ export default function Home() {
                   ) : geoErr ? (
                     <div style={{display:"flex",alignItems:"center",gap:16,padding:"20px 0"}}>
                       <span className="material-symbols-outlined" style={{fontSize:64,color:"rgba(255,255,255,0.2)"}}>cloud_queue</span>
-                      <p style={{color:"rgba(255,255,255,0.4)",fontSize:16}}>Search for a city in a region to see weather data</p>
+                      <p style={{color:"rgba(255,255,255,0.4)",fontSize:16}}>Please allow location access to see your local weather</p>
                     </div>
                   ) : w && (
                     <>
