@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import Layout from "../Layout";
 import "./css/Global.css";
-import RegionDefaultView from "./RegionDefaultView";
-import { getRegionDefaults } from "./regionConfig";
 import antarctica from "../../assets/images/antarctica.png";
 const styles = `
 .sa-root {
@@ -28,91 +25,53 @@ const FC_ICONS = [
   { icon: "partly_cloudy_day", color: "#f59e0b" },
 ];
 
-const REGION = getRegionDefaults("Antarctica");
-
 
 export default function Antarctica() {
-  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [data, setData]       = useState(null);
-  const [hasStored, setHasStored] = useState(false);
-  const [focusRegion, setFocusRegion] = useState(REGION.label);
 
   const loadData = () => {
-    const stored = localStorage.getItem(REGION.storageKey);
+    const stored = localStorage.getItem("weatherData_Antarctica");
     if (!stored) {
-      setHasStored(false);
-      setData(null);
-      setLoading(false);
+      setLoading(true); // skeleton reste affiché
       return;
     }
-
-    const e = JSON.parse(stored);
-    const { weather, forecast, image, windy_embed } = e;
-
+    const ant = JSON.parse(stored);
+    const { weather, forecast, image, windy_embed } = ant;
     setData({
-      city:       weather.name,
-      country:    weather.sys?.country,
-      temp:       Math.round(weather.main.temp),
-      feelsLike:  Math.round(weather.main.feels_like),
-      tempMax:    Math.round(weather.main.temp_max),
-      tempMin:    Math.round(weather.main.temp_min),
-      humidity:   weather.main.humidity,
-      pressure:   weather.main.pressure,
-      windSpeed:  Math.round(weather.wind.speed * 3.6), // m/s → km/h
-      visibility: Math.round(weather.visibility / 1000),
-      condition:  weather.weather[0].description,
+      city:       ant.location,
+      country:    ant.region,
+      temp:       Math.round(weather.temperature),
+      feelsLike:  Math.round(weather.feels_like),
+      tempMax:    Math.round(weather.temp_max),
+      tempMin:    Math.round(weather.temp_min),
+      humidity:   weather.humidity ?? "N/A",
+      pressure:   weather.pressure ?? "N/A",
+      windSpeed:  Math.round(weather.windspeed),
+      visibility: weather.visibility ?? "N/A",
+      condition:  weather.condition,  
       bgImage:    image,
-      windyEmbed: windy_embed + "&autoplay=1",
-      forecast:   forecast.list?.slice(0, 7).map((item, i) => ({
+      windyEmbed: windy_embed,
+      forecast: forecast.slice(0, 7).map((item, i) => ({
         day:   FC_DAYS[i],
-        high:  Math.round(item.main.temp_max),
-        low:   Math.round(item.main.temp_min),
+        high:  Math.round(item.temp.max),
+        low:   Math.round(item.temp.min),
         label: item.weather[0].description,
-        icon:  FC_ICONS[i].icon,
-        color: FC_ICONS[i].color,
+        icon:  FC_ICONS[i].icon,   
+        color: FC_ICONS[i].color,  
       })),
+      
     });
-
-    setHasStored(true);
     setLoading(false);
   };
 
   useEffect(() => {
-    const handleRegionFocusChanged = (event) => {
-      const nextRegion = event.detail?.regionName;
-      if (!nextRegion) return;
-      setFocusRegion(nextRegion);
-      setHasStored(false);
-      setData(null);
-      setLoading(false);
-    };
-
-    window.addEventListener("regionFocusChanged", handleRegionFocusChanged);
-    return () => window.removeEventListener("regionFocusChanged", handleRegionFocusChanged);
-  }, []);
-
-  useEffect(() => {
-    // When navigating to a region, always show the region georadar by default.
-    // Do not automatically restore a previously searched city on navigation.
-    setHasStored(false);
-    setData(null);
-    setLoading(false);
-
-    // Only load stored city when an explicit search happens (cityChanged event).
+    // Charge au démarrage
+    loadData();
+    // Recharge quand Layout envoie le signal cityChanged
     window.addEventListener("cityChanged", loadData);
     return () => window.removeEventListener("cityChanged", loadData);
-  }, [location.pathname]);
-  if (!hasStored) {
-    return (
-      <Layout>
-        <style>{styles}</style>
-        <div className="sa-root">
-          <RegionDefaultView regionName={focusRegion} regionCoords={[getRegionDefaults(focusRegion).coords.lat, getRegionDefaults(focusRegion).coords.lon]} />
-        </div>
-      </Layout>
-    );
-  }
+  }, []);
 
   return (
     <Layout>
@@ -272,7 +231,7 @@ export default function Antarctica() {
               <div className="sa-radar-hdr">
                 <div className="sa-radar-title">
                   <span className="material-symbols-outlined">radar</span>
-                  Regional Radar: {data?.city || REGION.label}
+                  Regional Radar: {loading ? "..." : data?.city}
                 </div>
                 <div className="sa-radar-btns">
                   <button className="sa-radar-btn on">LIVE</button>
