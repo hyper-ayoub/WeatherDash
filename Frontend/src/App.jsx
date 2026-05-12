@@ -22,7 +22,7 @@ import SouthAmerica from "./Components/region/SouthAmerica";
 import SouthAsia from "./Components/region/SouthAsia";
 import SoutheastAsia from "./Components/region/SoutheastAsia";
 import Error404 from "./Components/Error404.jsx";
-const WeatherGlobe = lazy(() => import("./Components/weather-globe/WeatherGlobe.jsx"));
+const WeatherGlobe = lazy(() => import("./Components/weather-globe/weatherGlobe.jsx"));
 export default function App() {
   return (
     <BrowserRouter>

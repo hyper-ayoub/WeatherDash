@@ -1,9 +1,10 @@
 .weather-map {
-  min-height: 100vh;
+  min-height: calc(100vh - 72px);
   width: 100%;
   display: grid;
   grid-template-columns: 360px 1fr;
-   background: linear-gradient(135deg, white 0%, #3b82f6 18%, #60a5fa 100%);
+  grid-auto-rows: minmax(0, 1fr);
+  background: linear-gradient(135deg, #04111f 0%, #102a50 34%, #0b1e38 100%);
   color: #f8fbff;
   overflow: hidden;
 }
@@ -130,57 +131,60 @@ color: white;
 .weather-map__layer-list button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
-}
+  background: rgba(15, 23, 42, 0.72);
 
 .weather-map__layer-note {
   font-size: 12px;
   line-height: 1.6;
   color: white;
-}
+  color: rgba(226, 232, 240, 0.82);
 
 .weather-map__slider {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid rgba(148, 163, 184, 0.14);
+  color: rgba(226, 232, 240, 0.9);
 }
 
 .weather-map__slider input[type="range"] {
   width: 100%;
   margin: 12px 0 8px;
-  accent-color: white;
+  color: rgba(226, 232, 240, 0.76);
 }
 
 .weather-map__slider-top,
 .weather-map__slider-foot {
   display: flex;
-  justify-content: space-between;
+  color: rgba(226, 232, 240, 0.78);
   gap: 12px;
   font-size: 12px;
   color: white;
 }
 
-.weather-map__actions {
+  accent-color: #60a5fa;
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
-
+  color: rgba(226, 232, 240, 0.82);
 .weather-map__actions button {
   padding: 11px 14px;
   border-radius: 999px;
   border: 1px solid rgba(96, 165, 250, 0.28);
-  background: rgba(96, 165, 250, 0.16);
+  color: rgba(226, 232, 240, 0.78);
   color: #fff;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;
 }
-
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
 .weather-map__actions button:hover {
   transform: translateY(-1px);
   background: rgba(96, 165, 250, 0.24);
 }
 
 .weather-map__error {
+  min-height: 0;
   padding: 12px 14px;
   border-radius: 14px;
   font-size: 13px;
@@ -253,15 +257,18 @@ color: white;
 @media (max-width: 1100px) {
   .weather-map {
     grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
   }
 
   .weather-map__panel {
     border-right: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    max-height: 40vh;
+    overflow: auto;
   }
 
   .weather-map__canvas-wrap {
-    min-height: 72vh;
+    min-height: 60vh;
   }
 }
 
@@ -281,5 +288,4 @@ color: white;
 
   .weather-map__layer-list {
     grid-template-columns: 1fr;
-  }
-}
+  }}}
