@@ -90,8 +90,7 @@ function buildRegionPayload(snapshot, latitude, longitude, region) {
 
 function buildTemperatureOverlayCanvas(point, snapshot) {
   const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 512;
+
   const ctx = canvas.getContext("2d");
 
   if (!ctx) {
@@ -317,11 +316,12 @@ export default function WeatherGlobe() {
 
   const loadWeatherAtPoint = async (latitude, longitude, { redirect = true } = {}) => {
     const point = { latitude, longitude };
+    activePointRef.current = point;
+    setSelectedPoint(point);
     setLoading(true);
     setError("");
 
     try {
-      console.log("Loading weather for:", latitude, longitude, "redirect:", redirect);
       const weatherBundle = await fetchWeatherBundle(latitude, longitude);
       if (destroyRef.current) {
 
@@ -331,14 +331,12 @@ export default function WeatherGlobe() {
       }
 
       const formatted = formatWeatherSnapshot(weatherBundle);
-      console.log("Weather fetched, formatted:", formatted?.current?.city);
       setSnapshot(formatted);
       setForecastIndex(0);
       syncScene(point, formatted, 0);
 
       if (redirect) {
         const city = formatted?.current?.city || "";
-        console.log("City resolved:", city);
 
         if (city) {
           try {
@@ -348,19 +346,16 @@ export default function WeatherGlobe() {
             }
 
             const data = await response.json();
-            console.log("Backend lookup result:", data);
             if (destroyRef.current) {
               return;
             }
 
             const region = data?.region || detectRegionFromCoordinates(latitude, longitude);
-            console.log("Region resolved:", region);
             const payload = data?.region ? data : buildRegionPayload(formatted, latitude, longitude, region);
             const storageKey = `weatherData_${region}`;
 
             localStorage.setItem(storageKey, JSON.stringify(payload));
             window.dispatchEvent(new Event("cityChanged"));
-            console.log("Navigating to:", getRegionRoute(region));
             navigate(getRegionRoute(region));
             return;
           } catch (err) {
@@ -372,11 +367,9 @@ export default function WeatherGlobe() {
         }
 
         const region = detectRegionFromCoordinates(latitude, longitude);
-        console.log("Fallback region:", region);
         const payload = buildRegionPayload(formatted, latitude, longitude, region);
         localStorage.setItem(`weatherData_${region}`, JSON.stringify(payload));
         window.dispatchEvent(new Event("cityChanged"));
-        console.log("Navigating to:", getRegionRoute(region));
         navigate(getRegionRoute(region));
       }
     } catch (fetchError) {
@@ -392,47 +385,79 @@ export default function WeatherGlobe() {
     }
   };
 
-  const getCenterCoordinates = () => {
+  const getCoordinatesFromPosition = (position) => {
     const viewer = viewerRef.current;
-    if (!viewer || !viewer.canvas) {
+    if (!viewer || !viewer.canvas || !position) {
       return null;
-
     }
 
     try {
-      const canvas = viewer.canvas;
-      const centerX = (canvas.clientWidth || canvas.width) / 2;
-      const centerY = (canvas.clientHeight || canvas.height) / 2;
-
-      const ray = viewer.camera.getPickRay(new Cesium.Cartesian2(centerX, centerY));
-      if (!ray) {
-        return null;
-
+      let cartesian = null;
+      
+      // Try pickPosition first (most accurate, picks actual geometry)
+      if (viewer.scene.pickPositionSupported) {
+        cartesian = viewer.scene.pickPosition(position);
       }
-
-      const cartesian = viewer.scene.globe.pick(ray, viewer.scene) || viewer.camera.pickEllipsoid(new Cesium.Cartesian2(centerX, centerY), viewer.scene.globe.ellipsoid);
+      
+      // If no cartesian from pickPosition, try picking the globe ellipsoid
+      if (!cartesian) {
+        cartesian = viewer.camera.pickEllipsoid(position, viewer.scene.globe.ellipsoid);
+      }
+      
+      // Last resort: use a ray through the camera and pick the ellipsoid
+      if (!cartesian) {
+        const ray = viewer.camera.getPickRay(position);
+        if (ray) {
+          cartesian = viewer.scene.globe.pick(ray, viewer.scene);
+        }
+      }
+      
       if (!cartesian) {
         return null;
       }
 
       const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-      return {
+      const result = {
         latitude: Cesium.Math.toDegrees(cartographic.latitude),
         longitude: Cesium.Math.toDegrees(cartographic.longitude),
       };
+      return result;
     } catch (err) {
-      console.error("Error getting center coordinates:", err);
+      console.error("Error getting clicked coordinates:", err);
       return null;
     }
   };
 
-  const handleCameraStop = async () => {
-    const coords = getCenterCoordinates();
+  const handleCanvasClick = async (event) => {
+    if (destroyRef.current) {
+      return;
+    }
+
+    const viewer = viewerRef.current;
+    if (!viewer || !viewer.canvas) {
+      return;
+    }
+
+    const rect = viewer.canvas.getBoundingClientRect();
+    const position = new Cesium.Cartesian2(event.clientX - rect.left, event.clientY - rect.top);
+    const coords = getCoordinatesFromPosition(position);
     if (!coords) {
       return;
     }
 
-    console.log("Camera stopped, auto-selecting at:", coords.latitude, coords.longitude);
+    await loadWeatherAtPoint(coords.latitude, coords.longitude, { redirect: false });
+  };
+
+  const handleMapClick = async (movement) => {
+    if (destroyRef.current) {
+      return;
+    }
+
+    const coords = getCoordinatesFromPosition(movement?.position);
+    if (!coords) {
+      return;
+    }
+
     await loadWeatherAtPoint(coords.latitude, coords.longitude, { redirect: false });
   };
 
@@ -457,6 +482,9 @@ export default function WeatherGlobe() {
 
 
   useEffect(() => {
+    // Reset destroy flag when effect runs (handles React Strict Mode double-mount in dev)
+    destroyRef.current = false;
+    
     if (!containerRef.current) {
       return undefined;
     }
@@ -509,6 +537,8 @@ export default function WeatherGlobe() {
     viewer.scene.fog.density = 0.1;
 
     handlerRef.current = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
+    handlerRef.current.setInputAction(handleMapClick, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+    viewer.canvas.addEventListener("click", handleCanvasClick);
 
     const frameHandler = (_scene, time) => {
       if (!particleSystemRef.current) {
@@ -530,24 +560,7 @@ export default function WeatherGlobe() {
     viewer.scene.postRender.addEventListener(frameHandler);
 
     // Listen for camera movement and auto-select when stopped
-    const cameraStopHandler = () => {
-      if (cameraStopTimeoutRef.current) {
-        clearTimeout(cameraStopTimeoutRef.current);
-      }
-
-      cameraStopTimeoutRef.current = setTimeout(() => {
-        if (!destroyRef.current) {
-          handleCameraStop();
-        }
-      }, 600);
-    };
-
-    viewer.camera.changed.addEventListener(cameraStopHandler);
-    viewer.camera.moveEnd.addEventListener(handleCameraStop);
-
-
-
-    const flyTo = (latitude, longitude) => {
+    const flyTo = (latitude, longitude, altitude = 3_500_000) => {
       const currentViewer = viewerRef.current;
       if (!currentViewer || currentViewer.isDestroyed?.()) {
         return;
@@ -561,7 +574,7 @@ export default function WeatherGlobe() {
 
 
       currentViewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 3_500_000),
+        destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
         orientation: {
           heading: Cesium.Math.toRadians(0),
           pitch: Cesium.Math.toRadians(-25),
@@ -617,56 +630,7 @@ export default function WeatherGlobe() {
 
 
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          if (destroyRef.current) {
-            return;
-          }
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          flyTo(latitude, longitude);
-          loadWeatherAtPoint(latitude, longitude, { redirect: false });
 
-
-        },
-        () => {
-          if (destroyRef.current) {
-            return;
-          }
-          flyTo(20, 0);
-          loadWeatherAtPoint(20, 0, { redirect: false });
-
-        },
-        { enableHighAccuracy: true, timeout: 8000, maximumAge: 120000 },
-      );
-    } else {
-      flyTo(20, 0);
-      loadWeatherAtPoint(20, 0, { redirect: false });
-    }
-
-    return () => {
-      destroyRef.current = true;
-      if (cameraStopTimeoutRef.current) {
-        clearTimeout(cameraStopTimeoutRef.current);
-      }
-      viewer.scene.postRender.removeEventListener(frameHandler);
-      viewer.camera.changed.removeEventListener(cameraStopHandler);
-      viewer.camera.moveEnd.removeEventListener(handleCameraStop);
-      if (handlerRef.current) {
-        handlerRef.current.destroy();
-      }
-      if (heatmapLayerRef.current) {
-        viewer.imageryLayers.remove(heatmapLayerRef.current, true);
-      }
-      if (particleSystemRef.current?.collection) {
-        viewer.scene.primitives.remove(particleSystemRef.current.collection);
-      }
-      if (overlayEntityRef.current) {
-        viewer.entities.remove(overlayEntityRef.current);
-      }
-      viewer.destroy();
-    };
   }, []);
 
   useEffect(() => {
@@ -710,7 +674,7 @@ export default function WeatherGlobe() {
         <div className="weather-globe__eyebrow">Cesium Weather Globe</div>
         <h1 className="weather-globe__title">Explore the atmosphere in 3D</h1>
         <p className="weather-globe__description">
-          Rotate, pan, and zoom the globe. The center marker auto-selects when you stop moving. Click the marker to open the region page.
+          Rotate, pan, and zoom the globe. Click anywhere on the map to load weather details for that location.
         </p>
 
         <div className="weather-globe__status-card">
@@ -776,7 +740,7 @@ export default function WeatherGlobe() {
                   {snapshot?.current?.city || "Unknown"}{snapshot?.current?.country ? `, ${snapshot.current.country}` : ""}
 
                 </div>
-                <div className="weather-globe__forecast-city-hint">Auto-selected at center marker</div>
+                <div className="weather-globe__forecast-city-hint">Click anywhere on the map to load this location</div>
               </div>
               <div className="weather-globe__forecast-temp">{temperatureLabel(selectedWeather.temperature)}</div>
             </div>
@@ -809,7 +773,6 @@ export default function WeatherGlobe() {
                 <input
                   type="range"
                   min="0"
-                  max={snapshot.forecast.length - 1}
                   step="1"
                   value={forecastIndex}
                   onChange={(event) => setForecastIndex(Number(event.target.value))}
@@ -861,8 +824,6 @@ export default function WeatherGlobe() {
 
       <main className="weather-globe__canvas-wrap">
         <div ref={containerRef} className="weather-globe__canvas" />
-
-        <div className="weather-globe__center-marker" aria-hidden="true" />
 
         {selectedWeather && (
           <div className="weather-globe__popup">
