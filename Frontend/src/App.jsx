@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
@@ -23,9 +23,26 @@ import SouthAsia from "./Components/region/SouthAsia";
 import SoutheastAsia from "./Components/region/SoutheastAsia";
 import Error404 from "./Components/Error404.jsx";
 const WeatherGlobe = lazy(() => import("./Components/weather-globe/weatherGlobe.jsx"));
-export default function App() {
+
+function AppContent() {
+  const { pathname } = useLocation();
+  const chatbotPaths = new Set([
+    "/home",
+    "/africa",
+    "/europe",
+    "/north-america",
+    "/south-america",
+    "/middle-east",
+    "/south-asia",
+    "/southeast-asia",
+    "/east-asia",
+    "/central-asia",
+    "/oceania",
+    "/antarctica",
+  ]);
+  const showChatbot = chatbotPaths.has(pathname);
+
   return (
-    <BrowserRouter>
     <Suspense fallback={<div style={{ padding: 24, color: "#fff" }}>Loading application...</div>}>
       <>
       {/* Toast Container */}
@@ -35,7 +52,7 @@ export default function App() {
             theme="colored"
           />
        {/*chatbot Wedghy */}
-         <Wedghy/>
+        {showChatbot && <Wedghy />}
         <Routes>
           {/* Redirect */}
           <Route path="/" element={<Navigate to="/LandingPage" />} />
@@ -62,8 +79,15 @@ export default function App() {
           {/* Error 404 */}
           <Route path="/*" element={<Error404 />} />
         </Routes>
-        </>
+      </>
     </Suspense>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }

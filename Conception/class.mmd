@@ -1,0 +1,13 @@
+classDiagram
+    class Region {
+        +int id
+        +string nom
+    }
+
+    class Ville {
+        +int id
+        +string nom
+        +string pays
+    }
+
+    Region "1" --> "0..*" Ville : contient

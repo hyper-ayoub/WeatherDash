@@ -1,0 +1,12 @@
+flowchart LR
+    Visitor[Visiteur]
+    User[Utilisateur authentifié]
+    System((WeatherDash))
+
+    Visitor -->|Consulter l'accueil| System
+    Visitor -->|Rechercher une ville| System
+    Visitor -->|Voir la météo publique| System
+    User -->|Se connecter| System
+    User -->|Consulter son tableau de bord| System
+    User -->|Naviguer par région| System
+    User -->|Voir les prévisions détaillées| System

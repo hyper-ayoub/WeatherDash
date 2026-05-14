@@ -1,0 +1,18 @@
+sequenceDiagram
+    actor User as Utilisateur
+    participant UI as Frontend React
+    participant API as Backend Django
+    participant Weather as OpenWeatherMap
+    participant Geo as Nominatim
+    participant Img as Unsplash
+
+    User->>UI: Saisir une ville
+    UI->>API: GET /api/services/?city=...
+    API->>Geo: Géocoder la ville
+    Geo-->>API: Coordonnées géographiques
+    API->>Weather: Récupérer la météo
+    Weather-->>API: Données météo et prévisions
+    API->>Img: Récupérer une image
+    Img-->>API: URL de l'image
+    API-->>UI: Réponse consolidée
+    UI-->>User: Afficher le tableau de bord
