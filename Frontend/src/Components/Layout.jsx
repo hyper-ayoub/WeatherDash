@@ -1,42 +1,34 @@
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { useState } from "react";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import './css/Layout.css';
-
-const regions = [
-  { name: "Home",           icon: "home",                    path: "/home" },
-  { name: "Africa",         icon: "public",                  path: "/africa" },
-  { name: "Europe",         icon: "euro_symbol",             path: "/europe" },
-  { name: "North America",  icon: "map",                     path: "/north-america" },
-  { name: "South America",  icon: "terrain",                 path: "/south-america" },
-  { name: "Middle East",    icon: "wb_sunny",                path: "/middle-east" },
-  { name: "South Asia",     icon: "filter_drama",            path: "/south-asia" },
-  { name: "Southeast Asia", icon: "umbrella",                path: "/southeast-asia" },
-  { name: "East Asia",      icon: "temp_preferences_custom", path: "/east-asia" },
-  { name: "Central Asia",   icon: "landscape",               path: "/central-asia" },
-  { name: "Oceania",        icon: "waves",                   path: "/oceania" },
-  { name: "Antarctica",     icon: "ac_unit",                 path: "/antarctica" },
-];
-
-const REGION_NAMES = new Set(regions.filter((region) => region.name !== "Home").map((region) => region.name));
+import SearchBar from "./search/SearchBar";
+import { REGIONS, getRegionNameFromPath } from "./region/regionNavigation";
+import { fetchWeatherBundleByCity } from "../services/weatherLookupService";
 
 export default function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const initials = (user.username || "U").charAt(0).toUpperCase();
-  const [searchCity, setSearchCity] = useState("");
-  const handleSearch = async(w) => {
-    if (w.key !== "Enter" || !searchCity.trim()) return;
+
+  const selectedRegion = getRegionNameFromPath(location.pathname);
+  const shouldPreserveCurrentRegion =
+    selectedRegion && selectedRegion !== "Home" && selectedRegion !== "Globe";
+
+  const handleCitySelect = async (suggestion) => {
     try {
-      const isStation = searchCity.toLowerCase().includes("station") || searchCity.toLowerCase().includes("antarctica");
-      const result = await fetch(isStation
-        ? `http://127.0.0.1:8000/api/antarctica/?station=${encodeURIComponent(searchCity)}`
-        : `http://127.0.0.1:8000/api/services/?city=${encodeURIComponent(searchCity)}`);
-      const data = await result.json();
-      if (data.error) return  toast.error(data.error);
-      localStorage.setItem("weatherData_" + data.region, JSON.stringify(data));
+      const data = await fetchWeatherBundleByCity(suggestion.searchLabel);
+
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      const storageRegion = shouldPreserveCurrentRegion ? selectedRegion : data.region;
+
+      localStorage.setItem("weatherData_" + storageRegion, JSON.stringify(data));
+
       const routes = {
         "Africa": "/africa",
         "Europe": "/europe",
@@ -49,13 +41,23 @@ export default function Layout({ children }) {
         "Central Asia": "/central-asia",
         "Oceania": "/oceania",
         "Antarctica": "/antarctica"
+      };
+
+      const targetRoute = routes[data.region];
+
+      if (!shouldPreserveCurrentRegion) {
+        if (!targetRoute) {
+          throw new Error(`Unsupported region returned by the weather service: ${data.region}`);
+        }
+
+        navigate(targetRoute, { state: { fromSearch: true } });
       }
-      navigate(routes[data.region], { state: { fromSearch: true } });
+
       window.dispatchEvent(new Event("cityChanged"));
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.error || error.message || "Unable to load weather data.");
     }
-  }
+  };
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/");
@@ -82,30 +84,22 @@ export default function Layout({ children }) {
         <header className="wd-header">
           <div className="wd-header-logo">
             <div className="wd-header-icon">
-              <span className="material-symbols-outlined" style={{fontSize:20}}>cloud</span>
+              <span className="material-symbols-outlined wd-icon-sm">cloud</span>
             </div>
             <span className="wd-header-title">WeatherDash</span>
           </div>
-           <div className="wd-search-wrap">
-            <span className="material-symbols-outlined wd-search-icon">search</span>
-            <input
-  className="wd-search"
-  type="text"
-  placeholder="Search for a city..."
-  value={searchCity}
-  onChange={(e) => setSearchCity(e.target.value)}
-  onKeyDown={handleSearch}
-/>
+          <div className="wd-search-area">
+            <SearchBar regionName={selectedRegion} onSelectSuggestion={handleCitySelect} />
           </div>
           <div className="wd-header-actions">
             <button className="wd-icon-btn">
-              <span className="material-symbols-outlined" style={{fontSize:22}}>notifications</span>
+              <span className="material-symbols-outlined wd-icon-md">notifications</span>
             </button>
             <button className="wd-icon-btn">
-              <span className="material-symbols-outlined" style={{fontSize:22}}>settings</span>
+              <span className="material-symbols-outlined wd-icon-md">settings</span>
             </button>
             <button className="wd-logout-btn" onClick={handleLogout}>
-              <span className="material-symbols-outlined" style={{fontSize:16}}>logout</span>
+              <span className="material-symbols-outlined wd-icon-sm">logout</span>
               Logout
             </button>
             <div className="wd-avatar">{initials}</div>
@@ -121,15 +115,14 @@ export default function Layout({ children }) {
             </div>
 
             <nav className="wd-nav">
-              {regions.map((w) => (
+              {REGIONS.map((w) => (
                 <Link
                   key={w.name}
                   to={w.path}
                   className={`wd-nav-item${location.pathname === w.path ? " active" : ""}`}
                   onClick={(event) => handleRegionSelect(event, w.name, w.path)}
-                  style={{ textDecoration: "none" }}
                 >
-                  <span className="material-symbols-outlined" style={{fontSize:20}}>{w.icon}</span>
+                  <span className="material-symbols-outlined wd-icon-sm">{w.icon}</span>
                   {w.name}
                 </Link>
               ))}

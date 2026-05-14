@@ -62,30 +62,15 @@ function buildWindyEmbedUrl(latitude, longitude) {
 function detectRegionFromCoordinates(latitude, longitude) {
   if (latitude <= -60) return "Antarctica";
 
-  if (
-    latitude >= 35 &&
-    latitude <= 72 &&
-    longitude >= -25 &&
-    longitude <= 60
-  ) {
+  if (latitude >= 35 && latitude <= 72 && longitude >= -25 && longitude <= 60) {
     return "Europe";
   }
 
-  if (
-    latitude >= 12 &&
-    latitude <= 42 &&
-    longitude >= 30 &&
-    longitude <= 60
-  ) {
+  if (latitude >= 12 && latitude <= 42 && longitude >= 30 && longitude <= 60) {
     return "Middle East";
   }
 
-  if (
-    latitude >= 5 &&
-    latitude <= 35 &&
-    longitude >= 60 &&
-    longitude <= 100
-  ) {
+  if (latitude >= 5 && latitude <= 35 && longitude >= 60 && longitude <= 100) {
     return "South Asia";
   }
 
@@ -107,12 +92,7 @@ function detectRegionFromCoordinates(latitude, longitude) {
     return "East Asia";
   }
 
-  if (
-    latitude >= 35 &&
-    latitude <= 55 &&
-    longitude >= 45 &&
-    longitude <= 100
-  ) {
+  if (latitude >= 35 && latitude <= 55 && longitude >= 45 && longitude <= 100) {
     return "Central Asia";
   }
 
@@ -182,34 +162,20 @@ function buildTemperatureOverlayCanvas(point, snapshot) {
     snapshot?.temperature ??
       snapshot?.current?.temperature ??
       point?.temperature ??
-      20
+      20,
   );
 
   const baseColor = temperatureToColor(temperature);
 
-  const alpha = clamp(
-    ((temperature + 10) / 50) * 0.85,
-    0.28,
-    0.85
-  );
+  const alpha = clamp(((temperature + 10) / 50) * 0.85, 0.28, 0.85);
 
-  const x =
-    ((wrapLongitude(point.longitude) + 180) / 360) * canvas.width;
+  const x = ((wrapLongitude(point.longitude) + 180) / 360) * canvas.width;
 
-  const y =
-    ((90 - point.latitude) / 180) * canvas.height;
+  const y = ((90 - point.latitude) / 180) * canvas.height;
 
-  const radius =
-    Math.max(canvas.width, canvas.height) * 0.32;
+  const radius = Math.max(canvas.width, canvas.height) * 0.32;
 
-  const gradient = ctx.createRadialGradient(
-    x,
-    y,
-    radius * 0.06,
-    x,
-    y,
-    radius
-  );
+  const gradient = ctx.createRadialGradient(x, y, radius * 0.06, x, y, radius);
 
   gradient.addColorStop(0, colorToCss(baseColor, alpha));
   gradient.addColorStop(0.35, colorToCss(baseColor, alpha * 0.45));
@@ -227,33 +193,28 @@ function createWindParticles(viewer, collection, origin, windSnapshot) {
 
   const currentWind = normalizeWindSnapshot(windSnapshot);
 
-  const flowBearing =
-    (currentWind.direction + 180) % 360;
+  const flowBearing = (currentWind.direction + 180) % 360;
 
   const baseSpeed = Math.max(currentWind.speed, 0.5);
 
   const particles = [];
 
   for (let i = 0; i < PARTICLE_COUNT; i += 1) {
-    const spreadDistanceKm =
-      4 + Math.random() * 38;
+    const spreadDistanceKm = 4 + Math.random() * 38;
 
-    const spreadBearing =
-      Math.random() * 360;
+    const spreadBearing = Math.random() * 360;
 
     const seed = destinationPoint(
       origin.latitude,
       origin.longitude,
       spreadDistanceKm,
-      spreadBearing
+      spreadBearing,
     );
 
     const particle = {
       latitude: seed.latitude,
       longitude: seed.longitude,
-      height:
-        PARTICLE_HEIGHT_METERS +
-        Math.random() * 1800,
+      height: PARTICLE_HEIGHT_METERS + Math.random() * 1800,
       age: Math.random() * 2,
       life: 4 + Math.random() * 5,
       speedScale: 0.75 + Math.random() * 0.75,
@@ -263,13 +224,12 @@ function createWindParticles(viewer, collection, origin, windSnapshot) {
         position: Cesium.Cartesian3.fromDegrees(
           seed.longitude,
           seed.latitude,
-          PARTICLE_HEIGHT_METERS
+          PARTICLE_HEIGHT_METERS,
         ),
 
         color: Cesium.Color.CYAN.withAlpha(0.45),
         pixelSize: 2 + Math.random() * 2,
-        outlineColor:
-          Cesium.Color.WHITE.withAlpha(0.15),
+        outlineColor: Cesium.Color.WHITE.withAlpha(0.15),
 
         outlineWidth: 1,
       }),
@@ -279,51 +239,34 @@ function createWindParticles(viewer, collection, origin, windSnapshot) {
   }
 
   const update = (deltaSeconds) => {
-    const safeDelta = clamp(
-      deltaSeconds,
-      0,
-      MAX_WIND_FPS_STEP_SECONDS
-    );
+    const safeDelta = clamp(deltaSeconds, 0, MAX_WIND_FPS_STEP_SECONDS);
 
-    const travelKm =
-      baseSpeed *
-      safeDelta *
-      (PARTICLE_SPEED_SCALE / 1000);
+    const travelKm = baseSpeed * safeDelta * (PARTICLE_SPEED_SCALE / 1000);
 
     for (const particle of particles) {
       particle.age += safeDelta;
 
       const animatedBearing =
         flowBearing +
-        Math.sin(
-          (particle.jitter + particle.age * 24) *
-            (Math.PI / 180)
-        ) *
-          14;
+        Math.sin((particle.jitter + particle.age * 24) * (Math.PI / 180)) * 14;
 
       const next = destinationPoint(
         particle.latitude,
         particle.longitude,
         travelKm * particle.speedScale,
-        animatedBearing
+        animatedBearing,
       );
 
-      particle.latitude = clamp(
-        next.latitude,
-        -86,
-        86
-      );
+      particle.latitude = clamp(next.latitude, -86, 86);
 
-      particle.longitude = wrapLongitude(
-        next.longitude
-      );
+      particle.longitude = wrapLongitude(next.longitude);
 
       if (particle.age >= particle.life) {
         const reset = destinationPoint(
           origin.latitude,
           origin.longitude,
           4 + Math.random() * 28,
-          Math.random() * 360
+          Math.random() * 360,
         );
 
         particle.latitude = reset.latitude;
@@ -332,30 +275,19 @@ function createWindParticles(viewer, collection, origin, windSnapshot) {
         particle.life = 4 + Math.random() * 5;
       }
 
-      const fade =
-        1 - particle.age / particle.life;
+      const fade = 1 - particle.age / particle.life;
 
-      const alpha = clamp(
-        fade * 0.85,
-        0.08,
-        0.85
+      const alpha = clamp(fade * 0.85, 0.08, 0.85);
+
+      particle.point.position = Cesium.Cartesian3.fromDegrees(
+        particle.longitude,
+        particle.latitude,
+        particle.height,
       );
 
-      particle.point.position =
-        Cesium.Cartesian3.fromDegrees(
-          particle.longitude,
-          particle.latitude,
-          particle.height
-        );
+      particle.point.color = Cesium.Color.fromAlpha(Cesium.Color.WHITE, alpha);
 
-      particle.point.color =
-        Cesium.Color.fromAlpha(
-          Cesium.Color.WHITE,
-          alpha
-        );
-
-      particle.point.pixelSize =
-        1.8 + (1 - fade) * 2.2;
+      particle.point.pixelSize = 1.8 + (1 - fade) * 2.2;
     }
   };
 
@@ -365,28 +297,20 @@ function createWindParticles(viewer, collection, origin, windSnapshot) {
   };
 }
 
-function replaceParticleSystem(
-  viewer,
-  systemRef,
-  origin,
-  windSource
-) {
+function replaceParticleSystem(viewer, systemRef, origin, windSource) {
   if (systemRef.current?.collection) {
-    viewer.scene.primitives.remove(
-      systemRef.current.collection
-    );
+    viewer.scene.primitives.remove(systemRef.current.collection);
   }
 
-  const collection =
-    viewer.scene.primitives.add(
-      new Cesium.PointPrimitiveCollection()
-    );
+  const collection = viewer.scene.primitives.add(
+    new Cesium.PointPrimitiveCollection(),
+  );
 
   systemRef.current = createWindParticles(
     viewer,
     collection,
     origin,
-    windSource
+    windSource,
   );
 }
 
@@ -410,40 +334,27 @@ export default function WeatherGlobe() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [selectedPoint, setSelectedPoint] =
-    useState(null);
+  const [selectedPoint, setSelectedPoint] = useState(null);
 
-  const [snapshot, setSnapshot] =
-    useState(null);
+  const [snapshot, setSnapshot] = useState(null);
 
-  const [forecastIndex, setForecastIndex] =
-    useState(0);
+  const [forecastIndex, setForecastIndex] = useState(0);
 
-  const [heatmapEnabled, setHeatmapEnabled] =
-    useState(true);
+  const [heatmapEnabled, setHeatmapEnabled] = useState(true);
 
-  const [heatmapOpacity, setHeatmapOpacity] =
-    useState(0.8);
+  const [heatmapOpacity, setHeatmapOpacity] = useState(0.8);
 
   const activeForecast = useMemo(() => {
     if (!snapshot?.forecast?.length) {
       return null;
     }
 
-    return (
-      snapshot.forecast[forecastIndex] ||
-      snapshot.forecast[0]
-    );
+    return snapshot.forecast[forecastIndex] || snapshot.forecast[0];
   }, [forecastIndex, snapshot]);
 
-  const displayWind =
-    activeForecast || snapshot?.current || null;
+  const displayWind = activeForecast || snapshot?.current || null;
 
-  const syncScene = (
-    point,
-    nextSnapshot,
-    nextForecastIndex = 0
-  ) => {
+  const syncScene = (point, nextSnapshot, nextForecastIndex = 0) => {
     const viewer = viewerRef.current;
 
     if (!viewer || !point || !nextSnapshot) {
@@ -461,55 +372,33 @@ export default function WeatherGlobe() {
         ? nextSnapshot.forecast[nextForecastIndex]
         : nextSnapshot.current;
 
-    const canvas =
-      buildTemperatureOverlayCanvas(
-        point,
-        windSource
-      );
+    const canvas = buildTemperatureOverlayCanvas(point, windSource);
 
     if (overlayEntityRef.current) {
-      viewer.entities.remove(
-        overlayEntityRef.current
-      );
+      viewer.entities.remove(overlayEntityRef.current);
     }
 
-    overlayEntityRef.current =
-      viewer.entities.add({
-        rectangle: {
-          coordinates:
-            Cesium.Rectangle.fromDegrees(
-              -180,
-              -90,
-              180,
-              90
-            ),
+    overlayEntityRef.current = viewer.entities.add({
+      rectangle: {
+        coordinates: Cesium.Rectangle.fromDegrees(-180, -90, 180, 90),
 
-          material:
-            new Cesium.ImageMaterialProperty({
-              image: canvas,
-              transparent: true,
-              color:
-                Cesium.Color.WHITE.withAlpha(
-                  0.8
-                ),
-            }),
+        material: new Cesium.ImageMaterialProperty({
+          image: canvas,
+          transparent: true,
+          color: Cesium.Color.WHITE.withAlpha(0.8),
+        }),
 
-          height: 100,
-        },
-      });
+        height: 100,
+      },
+    });
 
-    replaceParticleSystem(
-      viewer,
-      particleSystemRef,
-      point,
-      windSource
-    );
+    replaceParticleSystem(viewer, particleSystemRef, point, windSource);
   };
 
   const loadWeatherAtPoint = async (
     latitude,
     longitude,
-    { redirect = true } = {}
+    { redirect = true } = {},
   ) => {
     const point = { latitude, longitude };
 
@@ -520,18 +409,13 @@ export default function WeatherGlobe() {
     setError("");
 
     try {
-      const weatherBundle =
-        await fetchWeatherBundle(
-          latitude,
-          longitude
-        );
+      const weatherBundle = await fetchWeatherBundle(latitude, longitude);
 
       if (destroyRef.current) {
         return;
       }
 
-      const formatted =
-        formatWeatherSnapshot(weatherBundle);
+      const formatted = formatWeatherSnapshot(weatherBundle);
 
       syncScene(point, formatted, 0);
 
@@ -539,41 +423,30 @@ export default function WeatherGlobe() {
         return;
       }
 
-      const region =
-        detectRegionFromCoordinates(
-          latitude,
-          longitude
-        );
+      const region = detectRegionFromCoordinates(latitude, longitude);
 
       const payload = buildRegionPayload(
         formatted,
         latitude,
         longitude,
-        region
+        region,
       );
 
-      localStorage.setItem(
-        `weatherData_${region}`,
-        JSON.stringify(payload)
-      );
+      localStorage.setItem(`weatherData_${region}`, JSON.stringify(payload));
 
       navigate(getRegionRoute(region));
     } catch (err) {
       console.error(err);
 
       setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to fetch weather data"
+        err instanceof Error ? err.message : "Failed to fetch weather data",
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const getCoordinatesFromPosition = (
-    position
-  ) => {
+  const getCoordinatesFromPosition = (position) => {
     const viewer = viewerRef.current;
 
     if (!viewer || !position) {
@@ -583,31 +456,22 @@ export default function WeatherGlobe() {
     try {
       let cartesian = null;
 
-      if (
-        viewer.scene.pickPositionSupported
-      ) {
-        cartesian =
-          viewer.scene.pickPosition(position);
+      if (viewer.scene.pickPositionSupported) {
+        cartesian = viewer.scene.pickPosition(position);
       }
 
       if (!cartesian) {
-        cartesian =
-          viewer.camera.pickEllipsoid(
-            position,
-            viewer.scene.globe.ellipsoid
-          );
+        cartesian = viewer.camera.pickEllipsoid(
+          position,
+          viewer.scene.globe.ellipsoid,
+        );
       }
 
       if (!cartesian) {
-        const ray =
-          viewer.camera.getPickRay(position);
+        const ray = viewer.camera.getPickRay(position);
 
         if (ray) {
-          cartesian =
-            viewer.scene.globe.pick(
-              ray,
-              viewer.scene
-            );
+          cartesian = viewer.scene.globe.pick(ray, viewer.scene);
         }
       }
 
@@ -615,19 +479,12 @@ export default function WeatherGlobe() {
         return null;
       }
 
-      const cartographic =
-        Cesium.Cartographic.fromCartesian(
-          cartesian
-        );
+      const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
 
       return {
-        latitude: Cesium.Math.toDegrees(
-          cartographic.latitude
-        ),
+        latitude: Cesium.Math.toDegrees(cartographic.latitude),
 
-        longitude: Cesium.Math.toDegrees(
-          cartographic.longitude
-        ),
+        longitude: Cesium.Math.toDegrees(cartographic.longitude),
       };
     } catch (err) {
       console.error(err);
@@ -640,19 +497,15 @@ export default function WeatherGlobe() {
       return;
     }
 
-    const coords = getCoordinatesFromPosition(
-      movement?.position
-    );
+    const coords = getCoordinatesFromPosition(movement?.position);
 
     if (!coords) {
       return;
     }
 
-    await loadWeatherAtPoint(
-      coords.latitude,
-      coords.longitude,
-      { redirect: false }
-    );
+    await loadWeatherAtPoint(coords.latitude, coords.longitude, {
+      redirect: false,
+    });
   };
 
   useEffect(() => {
@@ -662,77 +515,59 @@ export default function WeatherGlobe() {
       return undefined;
     }
 
-    const imageryProvider =
-      new Cesium.UrlTemplateImageryProvider({
-        url: `${OSM_IMAGERY_URL}{z}/{x}/{y}.png`,
-        credit:
-          "© OpenStreetMap contributors",
-      });
+    const imageryProvider = new Cesium.UrlTemplateImageryProvider({
+      url: `${OSM_IMAGERY_URL}{z}/{x}/{y}.png`,
+      credit: "© OpenStreetMap contributors",
+    });
 
-    const viewer = new Cesium.Viewer(
-      containerRef.current,
-      {
-        animation: false,
-        baseLayerPicker: false,
-        fullscreenButton: false,
-        geocoder: false,
-        homeButton: false,
-        infoBox: false,
-        sceneModePicker: false,
-        selectionIndicator: false,
-        timeline: false,
-        navigationHelpButton: false,
-        shouldAnimate: true,
-        terrainProvider:
-          new Cesium.EllipsoidTerrainProvider(),
+    const viewer = new Cesium.Viewer(containerRef.current, {
+      animation: false,
+      baseLayerPicker: false,
+      fullscreenButton: false,
+      geocoder: false,
+      homeButton: false,
+      infoBox: false,
+      sceneModePicker: false,
+      selectionIndicator: false,
+      timeline: false,
+      navigationHelpButton: false,
+      shouldAnimate: true,
+      terrainProvider: new Cesium.EllipsoidTerrainProvider(),
 
-        imageryProvider,
-      }
-    );
+      imageryProvider,
+    });
 
     viewerRef.current = viewer;
 
     viewer.imageryLayers.removeAll();
 
-    viewer.imageryLayers.addImageryProvider(
-      imageryProvider
-    );
+    viewer.imageryLayers.addImageryProvider(imageryProvider);
 
-    const heatmapKey =
-      import.meta.env.VITE_OPENWEATHER_API_KEY;
+    const heatmapKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
     if (heatmapKey) {
-      const heatmapProvider =
-        new Cesium.UrlTemplateImageryProvider({
-          url: `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${heatmapKey}`,
-          credit: "OpenWeather",
-        });
+      const heatmapProvider = new Cesium.UrlTemplateImageryProvider({
+        url: `https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${heatmapKey}`,
+        credit: "OpenWeather",
+      });
 
       const heatmapLayer =
-        viewer.imageryLayers.addImageryProvider(
-          heatmapProvider
-        );
+        viewer.imageryLayers.addImageryProvider(heatmapProvider);
 
-      heatmapLayer.alpha =
-        heatmapOpacity;
+      heatmapLayer.alpha = heatmapOpacity;
 
-      heatmapLayer.show =
-        heatmapEnabled;
+      heatmapLayer.show = heatmapEnabled;
 
-      heatmapLayerRef.current =
-        heatmapLayer;
+      heatmapLayerRef.current = heatmapLayer;
     }
 
     viewer.scene.globe.show = true;
 
-    handlerRef.current =
-      new Cesium.ScreenSpaceEventHandler(
-        viewer.canvas
-      );
+    handlerRef.current = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
 
     handlerRef.current.setInputAction(
       handleMapClick,
-      Cesium.ScreenSpaceEventType.LEFT_CLICK
+      Cesium.ScreenSpaceEventType.LEFT_CLICK,
     );
 
     const frameHandler = (_scene, time) => {
@@ -749,29 +584,19 @@ export default function WeatherGlobe() {
         return;
       }
 
-      const deltaSeconds =
-        Cesium.JulianDate.secondsDifference(
-          time,
-          last
-        );
+      const deltaSeconds = Cesium.JulianDate.secondsDifference(time, last);
 
-      particleSystemRef.current.update(
-        deltaSeconds
-      );
+      particleSystemRef.current.update(deltaSeconds);
     };
 
-    viewer.scene.postRender.addEventListener(
-      frameHandler
-    );
+    viewer.scene.postRender.addEventListener(frameHandler);
 
     return () => {
       destroyRef.current = true;
 
       handlerRef.current?.destroy();
 
-      viewer.scene.postRender.removeEventListener(
-        frameHandler
-      );
+      viewer.scene.postRender.removeEventListener(frameHandler);
 
       if (!viewer.isDestroyed()) {
         viewer.destroy();
@@ -790,85 +615,85 @@ export default function WeatherGlobe() {
     layer.show = heatmapEnabled;
   }, [heatmapEnabled, heatmapOpacity]);
 
-  const selectedWeather =
-    displayWind || snapshot?.current;
+  const selectedWeather = displayWind || snapshot?.current;
 
   return (
     <div className="weather-globe">
       <aside className="weather-globe__panel">
-        <div className="weather-globe__eyebrow">
-          Cesium Weather Globe
-        </div>
+        <div className="weather-globe__eyebrow">Cesium Weather Globe</div>
 
-        <h1 className="weather-globe__title">
-          Explore the atmosphere in 3D
-        </h1>
+        <h1 className="weather-globe__title">Explore the atmosphere in 3D</h1>
 
         <p className="weather-globe__description">
-          Rotate, pan, and zoom the globe.
-          Click anywhere on the map to
-          load weather details.
+          Rotate, pan, and zoom the globe. Click anywhere on the map to load
+          weather details.
         </p>
 
         {selectedWeather && (
           <div className="weather-globe__forecast-card">
             <div className="weather-globe__forecast-city">
-              {snapshot?.current?.city ||
-                "Unknown"}
+              {snapshot?.current?.city || "Unknown"}
             </div>
 
             <div className="weather-globe__forecast-temp">
-              {temperatureLabel(
-                selectedWeather.temperature
-              )}
+              {temperatureLabel(selectedWeather.temperature)}
             </div>
 
             <div className="weather-globe__stats-grid">
               <div>
                 <span>Wind</span>
-
                 <strong>
-                  {selectedWeather.windSpeed !=
-                  null
-                    ? `${selectedWeather.windSpeed.toFixed(
-                        1
-                      )} m/s`
+                  {selectedWeather.windSpeed != null
+                    ? `${selectedWeather.windSpeed.toFixed(1)} m/s`
                     : "--"}
                 </strong>
               </div>
 
               <div>
                 <span>Humidity</span>
-
                 <strong>
-                  {selectedWeather.humidity !=
-                  null
+                  {selectedWeather.humidity != null
                     ? `${selectedWeather.humidity}%`
                     : "--"}
+                </strong>
+              </div>
+
+              <div>
+                <span>Pressure</span>
+                <strong>
+                  {selectedWeather.pressure != null
+                    ? `${selectedWeather.pressure} hPa`
+                    : "--"}
+                </strong>
+              </div>
+
+              <div>
+                <span>Precipitation</span>
+                <strong>
+                  {selectedWeather.raw?.rain?.["1h"] != null
+                    ? `${selectedWeather.raw.rain["1h"]} mm`
+                    : "0 mm"}
                 </strong>
               </div>
             </div>
           </div>
         )}
+        <div className="weather-globe__actions">
+  <button
+    className="weather-globe__home-button"
+    onClick={() => navigate("/home")}
+  >
+    Back to Home
+  </button>
+</div>
 
-        {loading && (
-          <div className="weather-globe__loading">
-            Loading...
-          </div>
-        )}
+        {loading && <div className="weather-globe__loading">Loading...</div>}
 
-        {error && (
-          <div className="weather-globe__error">
-            {error}
-          </div>
-        )}
+        {error && <div className="weather-globe__error">{error}</div>}
       </aside>
 
       <main className="weather-globe__canvas-wrap">
-        <div
-          ref={containerRef}
-          className="weather-globe__canvas"
-        />
+        <div ref={containerRef} className="weather-globe__canvas" />
       </main>
     </div>
   );

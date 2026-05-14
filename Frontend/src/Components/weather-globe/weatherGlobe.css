@@ -1,10 +1,66 @@
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.weather-map,
+.weather-globe {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.24), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 28%),
+    linear-gradient(135deg, #04111f 0%, #102a50 34%, #0b1e38 100%);
+  color: #f8fbff;
+  overflow: hidden;
+}
+
+.weather-map__panel,
+.weather-globe__panel {
+  height: 100vh;
+  padding: 20px;
+  background: rgba(2, 8, 23, 0.55);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(255,255,255,0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  overflow-y: auto;
+}
+
+.weather-map__canvas-wrap,
+.weather-globe__canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.weather-map__canvas,
+.weather-globe__canvas,
+.cesium-viewer,
+.cesium-widget,
+.cesium-widget canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+
 .weather-map,
 .weather-globe {
 
   width: 100%;
   display: grid;
   grid-template-columns: minmax(320px, 360px) minmax(0, 1fr);
-  grid-auto-rows: minmax(0, 1fr);
   background:
     radial-gradient(circle at top left, rgba(59, 130, 246, 0.24), transparent 34%),
     radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 28%),
@@ -111,11 +167,37 @@
   gap: 10px;
 }
 
-.weather-globe__legend,
 .weather-globe__actions {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.weather-globe__home-button {
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
+
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.weather-globe__home-button:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
 }
 
 .weather-globe__legend {
@@ -378,7 +460,7 @@
 
   .weather-map__canvas-wrap,
   .weather-globe__canvas-wrap {
-    min-height: 60vh;
+    height: 60vh;
   }
 }
 

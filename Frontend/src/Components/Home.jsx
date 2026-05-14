@@ -14,6 +14,7 @@ const regions = [
   { name: "Central Asia",   icon: "landscape",               path: "/central-asia" },
   { name: "Oceania",        icon: "waves",                   path: "/oceania" },
   { name: "Antarctica",     icon: "ac_unit",                 path: "/antarctica" },
+  { name: "Globe",          icon: "globe",                   path: "/globe"}
 ];
 
 const styles = `
@@ -174,16 +175,6 @@ export default function Home() {
     localStorage.removeItem("user");
     navigate("/");
   };
-
-
-
-
-
-
-
-
-
-
   useEffect(() => {
 
 
