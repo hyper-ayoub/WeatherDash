@@ -25,7 +25,7 @@ body,
 .weather-globe__panel {
   height: 100vh;
   padding: 20px;
-  background: rgba(2, 8, 23, 0.55);
+  background: rgba(35, 100, 212, 0.676);
   backdrop-filter: blur(18px);
   border-right: 1px solid rgba(255,255,255,0.08);
 
@@ -67,18 +67,6 @@ body,
     linear-gradient(135deg, #04111f 0%, #102a50 34%, #0b1e38 100%);
   color: #f8fbff;
   overflow: hidden;
-}
-
-.weather-map__panel,
-.weather-globe__panel {
-  padding: 28px 24px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(2, 8, 23, 0.42);
-  backdrop-filter: blur(20px);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  overflow: auto;
 }
 
 .weather-map__eyebrow,
