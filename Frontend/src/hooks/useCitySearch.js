@@ -9,6 +9,7 @@ export default function useCitySearch({
   minCharacters = DEFAULT_MIN_CHARACTERS,
   debounceMs = DEFAULT_DEBOUNCE_MS,
   onSelectSuggestion,
+  autoComplete = false,
 } = {}) {
   const containerRef = useRef(null);
   const inputRef = useRef(null);
@@ -137,6 +138,15 @@ export default function useCitySearch({
   }, [closeDropdown]);
 
   useEffect(() => {
+    if (!autoComplete) {
+      // Autocomplete disabled: ensure no suggestions are shown
+      setSuggestions([]);
+      setIsLoading(false);
+      setError("");
+      closeDropdown();
+      return undefined;
+    }
+
     if (!canSearch) {
       setSuggestions([]);
       setIsLoading(false);

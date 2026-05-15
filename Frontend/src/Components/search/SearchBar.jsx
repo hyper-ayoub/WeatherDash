@@ -1,42 +1,22 @@
-import { useId } from "react";
-import useCitySearch from "../../hooks/useCitySearch";
-import SearchSuggestions from "./SearchSuggestions";
+import { useRef, useState } from "react";
 import "./SearchBar.css";
 
-export default function SearchBar({
-  regionName,
-  onSelectSuggestion,
-  placeholder,
-  className = "",
-}) {
-  const listId = useId();
+export default function SearchBar({ regionName, onSelectSuggestion, placeholder, className = "" }) {
+  const inputRef = useRef(null);
+  const [query, setQuery] = useState("");
 
-  const {
-    activeIndex,
-    containerRef,
-    error,
-    handleChange,
-    handleFocus,
-    handleHoverSuggestion,
-    handleKeyDown,
-    handleSelectSuggestion,
-    inputRef,
-    isLoading,
-    isOpen,
-    query,
-    suggestions,
-  } = useCitySearch({
-    regionName,
-    onSelectSuggestion,
-  });
+  const handleChange = (e) => setQuery(e.target.value);
 
-  const activeDescendantId =
-    isOpen && activeIndex >= 0 && suggestions[activeIndex]
-      ? `${listId}-option-${activeIndex}`
-      : undefined;
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      if (typeof onSelectSuggestion === "function" && query.trim().length > 0) {
+        onSelectSuggestion({ searchLabel: query.trim(), displayLabel: query.trim() });
+      }
+    }
+  };
 
   return (
-    <div ref={containerRef} className={`wd-search-shell ${className}`.trim()}>
+    <div className={`wd-search-shell ${className}`.trim()}>
       <div className="wd-search-input-wrap">
         <span className="material-symbols-outlined wd-search-icon" aria-hidden="true">
           search
@@ -48,28 +28,11 @@ export default function SearchBar({
           value={query}
           placeholder={placeholder || (regionName ? `Search in ${regionName}` : "Search for a city...")}
           onChange={handleChange}
-          onFocus={handleFocus}
           onKeyDown={handleKeyDown}
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded={isOpen}
-          aria-controls={listId}
-          aria-activedescendant={activeDescendantId}
+          role="searchbox"
+          aria-autocomplete="none"
         />
       </div>
-
-      <SearchSuggestions
-        id={listId}
-        activeIndex={activeIndex}
-        error={error}
-        isLoading={isLoading}
-        isOpen={isOpen}
-        onHoverSuggestion={handleHoverSuggestion}
-        onSelectSuggestion={handleSelectSuggestion}
-        query={query}
-        regionName={regionName}
-        suggestions={suggestions}
-      />
     </div>
   );
 }
