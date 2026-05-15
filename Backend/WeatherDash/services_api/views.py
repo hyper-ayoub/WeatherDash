@@ -63,9 +63,9 @@ class AntarcticaViews(View):
     @method_decorator(cache_page(60 * 15))
     def get(self, request):
         """ station """
-        station = request.GET.get("station", "")
+        station = request.GET.get("city", "") or request.GET.get("station", "")
         if not station:
-            return JsonResponse({"error": "Veuillez fournir une station"}, status=400)
+            return JsonResponse({"error": "Veuillez fournir une ville ou une station"}, status=400)
 
         """ weather station """
         data = get_weather_station(station)

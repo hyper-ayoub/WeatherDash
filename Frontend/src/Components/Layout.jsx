@@ -18,7 +18,7 @@ export default function Layout({ children }) {
 
   const handleCitySelect = async (suggestion) => {
     try {
-      const data = await fetchWeatherBundleByCity(suggestion.searchLabel);
+      const data = await fetchWeatherBundleByCity(suggestion.searchLabel, selectedRegion);
 
       if (data.error) {
         toast.error(data.error);

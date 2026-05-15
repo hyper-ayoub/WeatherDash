@@ -48,27 +48,37 @@ export default function Antarctica() {
     }
 
     const e = JSON.parse(stored);
+    console.log(e);
     const { weather, forecast, image, windy_embed } = e;
+    const weatherMain = weather?.main || {};
+    const weatherWind = weather?.wind || {};
+    const weatherCondition = weather?.weather?.[0]?.description || weather?.condition || "Unknown";
+    const forecastItems = Array.isArray(forecast)
+      ? forecast
+      : Array.isArray(forecast?.list)
+        ? forecast.list
+        : [];
+    console.log(e.location);
 
     setData({
-      city:       weather.name,
-      country:    weather.sys?.country,
-      temp:       Math.round(weather.main.temp),
-      feelsLike:  Math.round(weather.main.feels_like),
-      tempMax:    Math.round(weather.main.temp_max),
-      tempMin:    Math.round(weather.main.temp_min),
-      humidity:   weather.main.humidity,
-      pressure:   weather.main.pressure,
-      windSpeed:  Math.round(weather.wind.speed * 3.6), // m/s → km/h
-      visibility: Math.round(weather.visibility / 1000),
-      condition:  weather.weather[0].description,
+      city:       weather?.name || e?.location || "Antarctica",
+      country:    weather?.sys?.country || e?.country || "AQ",
+      temp:       Math.round(weatherMain.temp ?? weather?.temperature ?? 0),
+      feelsLike:  Math.round(weatherMain.feels_like ?? weather?.feels_like ?? weatherMain.temp ?? weather?.temperature ?? 0),
+      tempMax:    Math.round(weatherMain.temp_max ?? weather?.temp_max ?? weatherMain.temp ?? weather?.temperature ?? 0),
+      tempMin:    Math.round(weatherMain.temp_min ?? weather?.temp_min ?? weatherMain.temp ?? weather?.temperature ?? 0),
+      humidity:   weatherMain.humidity ?? weather?.humidity ?? 0,
+      pressure:   weatherMain.pressure ?? weather?.pressure ?? 0,
+      windSpeed:  Math.round((weatherWind.speed ?? weather?.windspeed ?? 0) * 3.6), // m/s → km/h
+      visibility: Math.round((weather?.visibility ?? 0) / 1000),
+      condition:  weatherCondition,
       bgImage:    image,
       windyEmbed: windy_embed + "&autoplay=1",
-      forecast:   forecast.list?.slice(0, 7).map((item, i) => ({
+      forecast:   forecastItems.slice(0, 7).map((item, i) => ({
         day:   FC_DAYS[i],
-        high:  Math.round(item.main.temp_max),
-        low:   Math.round(item.main.temp_min),
-        label: item.weather[0].description,
+        high:  Math.round(item.main?.temp_max ?? item.temp?.max ?? item.high ?? 0),
+        low:   Math.round(item.main?.temp_min ?? item.temp?.min ?? item.low ?? 0),
+        label: item.weather?.[0]?.description || item.label || weatherCondition,
         icon:  FC_ICONS[i].icon,
         color: FC_ICONS[i].color,
       })),
